@@ -1,0 +1,186 @@
+html,
+body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #111;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Form Container */
+.form-container {
+    width: 400px;
+    background: linear-gradient(#212121, #212121) padding-box,
+        linear-gradient(145deg, transparent 50%, #e81cff, #40c9ff) border-box;
+    border: 3px solid transparent;
+    padding: 40px 50px;
+    font-size: 14px;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    box-sizing: border-box;
+    border-radius: 16px;
+    background-size: 200% 100%;
+    animation: gradient 5s ease infinite;
+}
+
+@media (max-width: 480px) {
+    .form-container {
+        width: 100%;
+        margin: 0 16px;
+        padding: 24px 16px;
+        box-sizing: border-box;
+    }
+    .form-container .form-group input {
+        width: 100%;
+        max-width: none;
+    }
+}
+
+@keyframes gradient {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+/* Title */
+.form-container h1 {
+    text-align: center;
+    margin: 0 0 20px 0;
+    font-size: 25px;
+    font-weight: 700;
+}
+
+/* Form Layout */
+.form-container .form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: stretch;
+    /* inputs full width */
+}
+
+/* Form Groups */
+.form-container .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.form-container .form-group label {
+    color: #aaa;
+    font-weight: 600;
+    font-size: 14px;
+    text-align: left;
+}
+
+.form-container .form-group input {
+    width: 90%;
+    max-width: 340px;
+    margin: 0 auto;
+    padding: 10px 16px;
+    border-radius: 8px;
+    color: #fff;
+    font-family: inherit;
+    background-color: transparent;
+    border: 1.5px solid #414141;
+    display: block;
+}
+
+.form-container .form-group input::placeholder {
+    opacity: 0.5;
+}
+
+.form-container .form-group input:focus {
+    outline: none;
+    border-color: #e81cff;
+}
+.form-container .form-group input:focus-visible {
+    box-shadow: 0 0 0 3px rgba(232, 28, 255, 0.35);
+}
+
+/* "New here?" text + link */
+.form-container .form-group p {
+    margin: 0;
+    text-align: center;
+    font-size: 14px;
+}
+
+.form-container .form-group a {
+    margin-left: 3px;
+    /* spacing between text and link */
+    color: blue;
+    transition: color 0.3s ease;
+}
+
+.form-container .form-group a:hover {
+    color: green;
+}
+
+/* Glow Button Wrapper */
+.glow-btn-container {
+    position: relative;
+    display: inline-block;
+    padding: 3px;
+    border-radius: 0.9em;
+    background: linear-gradient(90deg, #03a9f4, #f441a5);
+    transition: all 0.4s ease;
+    align-self: center;
+    margin-top: 10px;
+    z-index: 0;
+    isolation: isolate;
+}
+
+.glow-btn-container::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #03a9f4, #f441a5);
+    filter: blur(0);
+    opacity: 0;
+    transition: opacity 0.4s ease, filter 0.4s ease;
+    z-index: -1;
+    pointer-events: none;
+}
+
+.glow-btn-container:hover::before {
+    opacity: 1;
+    filter: blur(1.2em);
+}
+
+.glow-btn-container button {
+    font-size: 1em;
+    font-weight: 600;
+    padding: 0.8em 1.2em;
+    border-radius: 0.7em;
+    border: none;
+    background: #111;
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 2px 2px 4px #00000080;
+    transition: transform 0.2s ease;
+}
+.glow-btn-container button:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(64, 201, 255, 0.35), 2px 2px 4px #00000080;
+}
+
+.glow-btn-container button:active {
+    transform: scale(0.95);
+}
