@@ -17,9 +17,7 @@ export default function Login() {
       const { data } = await api.post('/auth/student/login', form)
       localStorage.setItem('token', data.token)
       localStorage.setItem('role', 'student')
-      // navigate first, then hard fallback to handle any SPA routing issues
       navigate('/profile', { replace: true })
-      setTimeout(() => { if (location.pathname !== '/profile') location.href = '/profile' }, 150)
     } catch (err: any) {
       setError(err.response?.data?.error || 'Login failed')
     } finally {
@@ -28,7 +26,7 @@ export default function Login() {
   }
 
   return (
-    <div className="form-container">
+    <div className="form-container" style={{ margin: 'auto' }}>
       <h1>LOGIN</h1>
       <form className="form" onSubmit={submit}>
         {error && <div style={{ color: '#f66', textAlign: 'center', fontSize: 12 }}>{error}</div>}

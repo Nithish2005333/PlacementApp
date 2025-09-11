@@ -14,13 +14,8 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (res) => res,
   (error) => {
-    if (error?.response?.status === 401) {
-      const role = localStorage.getItem('role') || 'student'
-      localStorage.removeItem('token')
-      if (typeof window !== 'undefined') {
-        window.location.replace(role === 'admin' ? '/admin/login' : '/login')
-      }
-    }
+    // Don't auto-redirect on 401, let components handle it
+    // This prevents conflicts with component-level error handling
     return Promise.reject(error)
   }
 )

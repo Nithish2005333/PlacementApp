@@ -36,10 +36,19 @@ app.get('*', (req, res, next) => {
   res.sendFile(path.join(clientDist, 'index.html'));
 });
 
-const PORT = process.env.PORT || 10000;
+const PORT = Number(process.env.PORT) || 10000;
 connectMongo().then(async () => {
   await ensureDefaultAdmin();
-  app.listen(PORT, () => console.log(`Server running on :${PORT}`));
+  const server = app
+    .listen(PORT, '0.0.0.0', () => console.log(`Server running on :${PORT}`))
+    .on('error', (err) => {
+      if (err && err.code === 'EADDRINUSE') {
+        console.error(`Port ${PORT} is already in use. Set a different PORT in your environment or stop the other process.`);
+      } else {
+        console.error('Server error:', err);
+      }
+      process.exit(1);
+    });
 }).catch((err) => {
   console.error('Failed to start server', err);
   process.exit(1);

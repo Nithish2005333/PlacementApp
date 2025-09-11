@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import api from '../lib/api'
-import '../styles/legacy-login.css'
+// Use a dedicated stylesheet so body centering from legacy login doesn't affect Register
+import '../styles/register.css'
 
 export default function Register() {
   const navigate = useNavigate()
@@ -25,7 +26,8 @@ export default function Register() {
   }
 
   return (
-    <div className="form-container">
+    <div className="register-page">
+      <div className="form-container">
       <h1>REGISTER</h1>
       <form className="form" onSubmit={submit}>
         {error && <div style={{ color: '#f66', textAlign: 'center', fontSize: 12 }}>{error}</div>}
@@ -43,11 +45,35 @@ export default function Register() {
         </div>
         <div className="form-group">
           <label htmlFor="dept">Department:</label>
-          <input id="dept" value={form.department} onChange={(e) => setForm({ ...form, department: e.target.value })} required placeholder="Enter your department" />
+          <select 
+            id="dept"
+            value={form.department} 
+            onChange={(e) => setForm({ ...form, department: e.target.value })}
+            required
+          >
+            <option value="">Select Department</option>
+            <option value="CSE">Computer Science & Engineering (CSE)</option>
+            <option value="AI&DS">Artificial Intelligence & Data Science (AI&DS)</option>
+            <option value="Mech">Mechanical Engineering (Mech)</option>
+            <option value="ECE">Electronics & Communication Engineering (ECE)</option>
+            <option value="EEE">Electrical & Electronics Engineering (EEE)</option>
+            <option value="VLSI">VLSI Design (VLSI)</option>
+          </select>
         </div>
         <div className="form-group">
           <label htmlFor="year">Year:</label>
-          <input id="year" value={form.year} onChange={(e) => setForm({ ...form, year: e.target.value })} required placeholder="Enter your year" />
+          <select 
+            id="year"
+            value={form.year} 
+            onChange={(e) => setForm({ ...form, year: e.target.value })}
+            required
+          >
+            <option value="">Select Year</option>
+            <option value="First">First Year</option>
+            <option value="Second">Second Year</option>
+            <option value="Third">Third Year</option>
+            <option value="Fourth">Fourth Year</option>
+          </select>
         </div>
         <div className="form-group">
           <label htmlFor="password">Password:</label>
@@ -60,6 +86,7 @@ export default function Register() {
           <button type="submit" disabled={loading}>{loading ? 'Registering...' : 'Register'}</button>
         </div>
       </form>
+      </div>
     </div>
   )
 }

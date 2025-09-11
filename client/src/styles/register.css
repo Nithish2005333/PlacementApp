@@ -1,0 +1,57 @@
+html,
+body {
+    height: 100%;
+}
+
+/* Override global auth login body flex so Register can control its own layout */
+body {
+    display: block !important;
+    align-items: initial !important;
+    justify-content: initial !important;
+}
+
+/* Wrapper specific to the register page so we can control spacing without affecting login */
+.register-page {
+    min-height: 100vh;
+    padding: 50px 16px;
+    /* extra top/bottom space to ensure no touch */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.form-container {
+    margin-top: 0.2rem;
+    margin-bottom: 1rem;
+    width: 100%;
+    max-width: 480px;
+    box-sizing: border-box;
+}
+
+/* Make selects readable on dark theme and their dropdown list visible */
+.register-page select {
+    width: 100%;
+    height: 44px;
+    padding: 10px 16px;
+    border-radius: 8px;
+    border: 1.5px solid #414141;
+    background-color: #0f0f0f; /* closed control bg */
+    color: #ffffff; /* closed control text */
+}
+
+.register-page select:focus {
+    outline: none;
+    border-color: #e81cff;
+    box-shadow: 0 0 0 3px rgba(232, 28, 255, 0.35);
+}
+
+/* Dropdown list styling (supported by most browsers) */
+.register-page select option {
+    color: #111111; /* dark text */
+    background-color: #ffffff; /* light background so it's readable */
+}
+
+/* Reuse the same .form-container styles from legacy-login.css; margins are adjusted via the wrapper. */

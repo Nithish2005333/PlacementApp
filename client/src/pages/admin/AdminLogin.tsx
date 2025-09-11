@@ -10,13 +10,14 @@ export default function AdminLogin() {
 
   async function submit(e: React.FormEvent) {
     e.preventDefault()
+    setError(null)
     try {
       const { data } = await api.post('/auth/admin/login', form)
       localStorage.setItem('token', data.token)
       localStorage.setItem('role', 'admin')
-      navigate('/admin/dashboard')
+      navigate('/admin/dashboard', { replace: true })
     } catch (e: any) {
-      setError('Login failed')
+      setError(e.response?.data?.error || 'Login failed')
     }
   }
 
