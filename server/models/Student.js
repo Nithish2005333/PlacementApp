@@ -65,10 +65,13 @@ const StudentSchema = new mongoose.Schema({
   collegeAddress: String,
   address: String,
   phone: String,
+    currentSemester: { type: Number, min: 1, max: 8 },
 
   academic: AcademicSchema,
   placement: PlacementSchema,
   links: LinkSchema,
+  // Mirror of academic.currentSemester for quick reads and compatibility
+  
 }, { timestamps: true });
 
 module.exports = mongoose.model('Student', StudentSchema);

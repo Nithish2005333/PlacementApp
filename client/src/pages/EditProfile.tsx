@@ -7,6 +7,7 @@ export default function EditProfile() {
   const [form, setForm] = useState<any>({})
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [saved, setSaved] = useState(false)
   const [activeTab, setActiveTab] = useState<'personal' | 'academic' | 'placement' | 'skills' | 'other' | 'links'>('personal')
   const navListRef = useRef<HTMLUListElement | null>(null)
 
@@ -86,9 +87,57 @@ export default function EditProfile() {
     setError(null)
     try {
       const combinedName = [form.name, form.lastName].filter(Boolean).join(' ').trim()
-      const payload = { ...form, name: combinedName }
+      const payload: any = {
+        name: combinedName,
+        registerNumber: form.registerNumber,
+        email: form.email,
+        department: form.department,
+        year: form.year,
+        profilePhoto: form.profilePhoto,
+        dob: form.dob,
+        address: form.address,
+        phone: form.phone,
+        gender: form.gender,
+        // duplicate current semester at root for compatibility with existing readers
+        currentSemester: (Number.isFinite(Number(form.academic?.currentSemester)) && Number(form.academic?.currentSemester) >= 1 && Number(form.academic?.currentSemester) <= 8)
+          ? Number(form.academic?.currentSemester)
+          : undefined
+      }
+      if (form.academic) {
+        const cs = Number(form.academic.currentSemester)
+        payload.academic = {
+          cgpa: form.academic.cgpa,
+          hscPercentage: form.academic.hscPercentage,
+          sslcPercentage: form.academic.sslcPercentage,
+          historyOfArrears: form.academic.historyOfArrears,
+          currentArrears: form.academic.currentArrears,
+          ...(Number.isFinite(cs) && cs >= 1 && cs <= 8 ? { currentSemester: cs } : {})
+        }
+      }
+      if (form.placement) {
+        payload.placement = {
+          willingToPlace: form.placement.willingToPlace,
+          achievements: form.placement.achievements,
+          internships: form.placement.internships,
+          certifications: form.placement.certifications,
+          technicalSkills: form.placement.technicalSkills,
+          logicalSkills: form.placement.logicalSkills,
+          // write experience to workExperience; keep projects if present
+          workExperience: form.placement.workExperience ?? form.placement.projects,
+          projects: form.placement.projects
+        }
+      }
+      if (form.links) {
+        payload.links = {
+          resume: form.links.resume,
+          portfolio: form.links.portfolio,
+          linkedin: form.links.linkedin,
+          github: form.links.github
+        }
+      }
       await api.put('/students/me', payload)
-      navigate('/profile')
+      setSaved(true)
+      setTimeout(() => navigate('/profile'), 1200)
     } catch (e: any) {
       setError('Save failed')
     } finally {
@@ -123,12 +172,22 @@ export default function EditProfile() {
 
   return (
     <div className="max-w-7xl mx-auto p-4 pt-2 sm:pt-4">
+      {saved && (
+        <div className="fixed inset-0 z-[100] flex items-start justify-center pointer-events-none">
+          <div className="mt-6 px-4 sm:px-6">
+            <div className="pointer-events-auto flex items-center gap-3 rounded-lg bg-emerald-600/95 shadow-lg ring-1 ring-emerald-400/40 px-4 py-3 text-white animate-[fadein_.15s_ease-out]">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5"><path fillRule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm13.36-2.69a.75.75 0 0 0-1.22-.86l-3.82 5.43-1.77-1.77a.75.75 0 1 0-1.06 1.06l2.4 2.4c.33.33.87.29 1.14-.08l5.39-6.18Z" clipRule="evenodd"/></svg>
+              <div className="text-sm font-medium">Profile updated successfully</div>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-[#111] text-white px-4 sm:px-6 py-4 rounded-md gap-4">
-          <div className="font-bold text-xl bg-gradient-to-r from-sky-400 to-purple-400 bg-clip-text text-transparent">Edit Profile</div>
+          <div className="font-bold text-3xl bg-gradient-to-r from-sky-400 to-purple-400 bg-clip-text text-transparent">Edit Profile</div>
           <button 
             onClick={() => navigate('/profile')} 
-            className="px-3 py-1 bg-neutral-600 hover:bg-neutral-500 text-white rounded-md w-full sm:w-auto"
+            className="px-4 py-2 bg-neutral-700 hover:bg-neutral-600 text-white rounded-md w-full sm:w-auto"
           >
             ← Back to Profile
           </button>
@@ -195,13 +254,13 @@ export default function EditProfile() {
           </nav>
 
           <section className="flex-1 bg-[#181818] rounded-md p-4 sm:p-6 fade-in">
-            <div className="bg-[#242424] rounded-md p-4 border border-neutral-800">
+            <div className="bg-[#242424] rounded-md p-4 border border-neutral-800 space-y-8">
               {error && <div className="text-red-400 text-sm mb-4 p-2 bg-red-900/20 rounded">{error}</div>}
               
               <form onSubmit={submit} className="space-y-6">
                 {/* Personal Information */}
-                <div id="personal" className="scroll-mt-24">
-                  <h2 className="text-lg font-semibold mb-4 pl-3 border-l-4 border-sky-600">Personal Information</h2>
+                <div id="personal" className="scroll-mt-24 bg-[#1f1f1f] p-4 rounded-md border border-neutral-800">
+                  <h2 className="text-xl sm:text-2xl font-bold mb-4 pl-3 border-l-4 border-sky-600">Personal Information</h2>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1">
                       <label className="text-sm font-medium">First Name *</label>
@@ -323,7 +382,7 @@ export default function EditProfile() {
                       <select 
                         className="w-full px-4 py-3 rounded-md bg-neutral-800 border border-neutral-700 focus:outline-none focus:border-sky-500 text-white" 
                         value={form.academic?.currentSemester ?? ''}
-                        onChange={(e) => setForm({ ...form, academic: { ...form.academic, currentSemester: Number(e.target.value) } })}
+                        onChange={(e) => setForm({ ...form, academic: { ...(form.academic || {}), currentSemester: Number(e.target.value) } })}
                       >
                         <option value="">Select Semester</option>
                         {[1,2,3,4,5,6,7,8].map(s => (
@@ -361,8 +420,8 @@ export default function EditProfile() {
         </div>
 
                 {/* Academic Information */}
-                <div id="academic" className="scroll-mt-24">
-                  <h2 className="text-lg font-semibold mb-4 pl-3 border-l-4 border-emerald-600">Academic Information</h2>
+                <div id="academic" className="scroll-mt-24 bg-[#1f1f1f] p-4 rounded-md border border-neutral-800">
+                  <h2 className="text-xl sm:text-2xl font-bold mb-4 pl-3 border-l-4 border-emerald-600">Academic Information</h2>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1">
                       <label className="text-sm font-medium">CGPA</label>
@@ -373,7 +432,7 @@ export default function EditProfile() {
                         max="10"
                         className="w-full px-3 py-2 rounded-md bg-neutral-800 border border-neutral-700 focus:outline-none focus:border-sky-500" 
                         value={form.academic?.cgpa || ''} 
-                        onChange={(e) => setForm({ ...form, academic: { ...form.academic, cgpa: Number(e.target.value) } })}
+                        onChange={(e) => setForm({ ...form, academic: { ...(form.academic || {}), cgpa: Number(e.target.value) } })}
                       />
           </div>
           <div className="space-y-1">
@@ -382,7 +441,7 @@ export default function EditProfile() {
                         type="number" step="0.01" min="0" max="100"
                         className="w-full px-3 py-2 rounded-md bg-neutral-800 border border-neutral-700 focus:outline-none focus:border-sky-500" 
                         value={form.academic?.hscPercentage ?? ''} 
-                        onChange={(e) => setForm({ ...form, academic: { ...form.academic, hscPercentage: Number(e.target.value) } })}
+                        onChange={(e) => setForm({ ...form, academic: { ...(form.academic || {}), hscPercentage: Number(e.target.value) } })}
                         placeholder="e.g., 85.50"
                       />
           </div>
@@ -392,7 +451,7 @@ export default function EditProfile() {
                         type="number" step="0.01" min="0" max="100"
                         className="w-full px-3 py-2 rounded-md bg-neutral-800 border border-neutral-700 focus:outline-none focus:border-sky-500" 
                         value={form.academic?.sslcPercentage ?? ''} 
-                        onChange={(e) => setForm({ ...form, academic: { ...form.academic, sslcPercentage: Number(e.target.value) } })}
+                        onChange={(e) => setForm({ ...form, academic: { ...(form.academic || {}), sslcPercentage: Number(e.target.value) } })}
                         placeholder="e.g., 92.00"
                       />
           </div>
@@ -407,7 +466,7 @@ export default function EditProfile() {
                         }
                         onChange={(e) => {
                           const val = e.target.value === 'none' ? 0 : Number(e.target.value)
-                          setForm({ ...form, academic: { ...form.academic, historyOfArrears: val } })
+                          setForm({ ...form, academic: { ...(form.academic || {}), historyOfArrears: val } })
                         }}
                       >
                         <option value="none">None</option>
@@ -427,7 +486,7 @@ export default function EditProfile() {
                         }
                         onChange={(e) => {
                           const val = e.target.value === 'none' ? 0 : Number(e.target.value)
-                          setForm({ ...form, academic: { ...form.academic, currentArrears: val } })
+                          setForm({ ...form, academic: { ...(form.academic || {}), currentArrears: val } })
                         }}
                       >
                         <option value="none">None</option>
@@ -441,8 +500,8 @@ export default function EditProfile() {
         </div>
 
                 {/* Placement Information */}
-                <div id="placement" className="scroll-mt-24">
-                  <h2 className="text-lg font-semibold mb-4 pl-3 border-l-4 border-rose-600">Placement Information</h2>
+                <div id="placement" className="scroll-mt-24 bg-[#1f1f1f] p-4 rounded-md border border-neutral-800">
+                  <h2 className="text-xl sm:text-2xl font-bold mb-4 pl-3 border-l-4 border-rose-600">Placement Information</h2>
 
                   {/* Placement Willingness */}
                   <div className="mb-6 p-4 sm:p-6 bg-gradient-to-r from-blue-900/20 to-purple-900/20 rounded-lg border border-blue-500/30">
@@ -495,8 +554,8 @@ export default function EditProfile() {
                 </div>
 
                 {/* Skills */}
-                <div id="skills" className="scroll-mt-24">
-                  <h2 className="text-lg font-semibold mb-4 pl-3 border-l-4 border-violet-600">Skills</h2>
+                <div id="skills" className="scroll-mt-24 bg-[#1f1f1f] p-4 rounded-md border border-neutral-800">
+                  <h2 className="text-xl sm:text-2xl font-bold mb-4 pl-3 border-l-4 border-violet-600">Skills</h2>
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div>
                       <h3 className="font-medium mb-2">Technical Skills</h3>
@@ -543,7 +602,7 @@ export default function EditProfile() {
                       </div>
                     </div>
                     <div>
-                      <h3 className="font-medium mb-2">Logical Skills</h3>
+                      <h3 className="font-medium mb-2">Soft Skills</h3>
                       <div className="space-y-2">
                         <div className="flex flex-col sm:flex-row gap-2">
                           <input 
@@ -590,8 +649,8 @@ export default function EditProfile() {
         </div>
 
                 {/* Highlights (Achievements, Projects, Internships, Certifications) */}
-                <div id="other" className="scroll-mt-24">
-                  <h2 className="text-lg font-semibold mb-4 pl-3 border-l-4 border-amber-500">Highlights</h2>
+                <div id="other" className="scroll-mt-24 bg-[#1f1f1f] p-4 rounded-md border border-neutral-800">
+                  <h2 className="text-xl sm:text-2xl font-bold mb-4 pl-3 border-l-4 border-amber-500">Highlights</h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Achievements */}
                     <div>
@@ -610,10 +669,10 @@ export default function EditProfile() {
                       <h3 className="font-medium mb-2">Projects</h3>
                       <div className="space-y-2">
                         <div className="flex flex-col sm:flex-row gap-2">
-                          <input type="text" className="flex-1 px-3 py-2 rounded-md bg-neutral-800 border border-neutral-700 focus:outline-none focus:border-sky-500" placeholder="Add a project" onKeyPress={(e) => { if (e.key === 'Enter') { e.preventDefault(); const val = (e.currentTarget as HTMLInputElement).value.trim(); if (!val) return; const items = (form.placement?.projects || '').split('\n').filter(Boolean); items.push(val); setForm({ ...form, placement: { ...form.placement, projects: items.join('\n') } }); (e.currentTarget as HTMLInputElement).value=''; } }} />
-                          <button type="button" onClick={(e) => { const input = (e.currentTarget.previousElementSibling as HTMLInputElement); const val = input.value.trim(); if (!val) return; const items = (form.placement?.projects || '').split('\n').filter(Boolean); items.push(val); setForm({ ...form, placement: { ...form.placement, projects: items.join('\n') } }); input.value=''; }} className="px-3 py-2 bg-green-600 hover:bg-green-500 text-white rounded-md w-auto text-sm">Add</button>
+                          <input type="text" className="flex-1 px-3 py-2 rounded-md bg-neutral-800 border border-neutral-700 focus:outline-none focus:border-sky-500" placeholder="Add a project" onKeyPress={(e) => { if (e.key === 'Enter') { e.preventDefault(); const val = (e.currentTarget as HTMLInputElement).value.trim(); if (!val) return; const items = (form.placement?.workExperience || form.placement?.projects || '').split('\n').filter(Boolean); items.push(val); setForm({ ...form, placement: { ...form.placement, workExperience: items.join('\n') } }); (e.currentTarget as HTMLInputElement).value=''; } }} />
+                          <button type="button" onClick={(e) => { const input = (e.currentTarget.previousElementSibling as HTMLInputElement); const val = input.value.trim(); if (!val) return; const items = (form.placement?.workExperience || form.placement?.projects || '').split('\n').filter(Boolean); items.push(val); setForm({ ...form, placement: { ...form.placement, workExperience: items.join('\n') } }); input.value=''; }} className="px-3 py-2 bg-green-600 hover:bg-green-500 text-white rounded-md w-auto text-sm">Add</button>
                         </div>
-                        <div className="flex flex-wrap gap-2">{(form.placement?.projects || '').split('\n').filter(Boolean).map((item: string, idx: number) => (<span key={idx} className="flex items-center gap-1 px-2 py-1 bg-green-600 text-white text-sm rounded-md">{item}<button type="button" onClick={() => { const items = (form.placement?.projects || '').split('\n').filter(Boolean); items.splice(idx,1); setForm({ ...form, placement: { ...form.placement, projects: items.join('\n') } }); }} className="ml-1 text-green-200 hover:text-white">×</button></span>))}</div>
+                        <div className="flex flex-wrap gap-2">{(form.placement?.workExperience || form.placement?.projects || '').split('\n').filter(Boolean).map((item: string, idx: number) => (<span key={idx} className="flex items-center gap-1 px-2 py-1 bg-green-600 text-white text-sm rounded-md">{item}<button type="button" onClick={() => { const items = (form.placement?.workExperience || form.placement?.projects || '').split('\n').filter(Boolean); items.splice(idx,1); setForm({ ...form, placement: { ...form.placement, workExperience: items.join('\n') } }); }} className="ml-1 text-green-200 hover:text-white">×</button></span>))}</div>
                       </div>
                     </div>
 
@@ -644,8 +703,8 @@ export default function EditProfile() {
                 </div>
 
                 {/* Links */}
-                <div id="links" className="scroll-mt-24">
-                  <h2 className="text-lg font-semibold mb-4 pl-3 border-l-4 border-cyan-500">Links</h2>
+                <div id="links" className="scroll-mt-24 bg-[#1f1f1f] p-4 rounded-md border border-neutral-800">
+                  <h2 className="text-xl sm:text-2xl font-bold mb-4 pl-3 border-l-4 border-cyan-500">Links</h2>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1">
                       <label className="text-sm font-medium">Resume URL</label>

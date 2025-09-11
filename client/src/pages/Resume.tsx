@@ -38,14 +38,14 @@ export default function Resume() {
   )
 
   const content = (
-    <div className="space-y-6 mt-8">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-[#111] text-white px-4 sm:px-6 py-4 rounded-md gap-4">
-        <div className="font-semibold">Resume</div>
-        <button onClick={() => { localStorage.removeItem('token'); navigate('/login') }} className="bg-rose-600 hover:bg-rose-500 text-white px-3 py-1 rounded-md w-full sm:w-auto">Logout</button>
+    <div className="space-y-3 pt-1 sm:pt-2 m-auto">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-[#111] text-white px-3 sm:px-4 py-4 rounded-md gap-4">
+        <div className="font-bold text-2xl">Placement App</div>
+        <button onClick={() => { localStorage.removeItem('token'); navigate('/login') }} className="bg-rose-600 hover:bg-rose-500 text-white px-4 py-2 rounded-md sm:ml-auto">Logout</button>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-4">
-        <nav className="w-full lg:w-56 bg-[#202020] rounded-md p-2">
+      <div className="flex flex-col lg:flex-row gap-3">
+        <nav className="w-full lg:w-56 bg-[#202020] rounded-md p-2 sticky top-2 self-start max-h-[calc(100vh-1rem)] overflow-auto z-10">
           <ul className="flex lg:flex-col space-x-2 lg:space-x-0 lg:space-y-1">
             <li><Link className="block px-3 py-2 text-neutral-300 hover:text-white hover:bg-[#333] rounded" to="/profile">Profile</Link></li>
             <li><Link className="block px-3 py-2 text-neutral-300 hover:text-white hover:bg-[#333] rounded" to="/profile/semester">Semester</Link></li>
@@ -53,8 +53,8 @@ export default function Resume() {
           </ul>
         </nav>
 
-        <section className="flex-1 bg-[#181818] rounded-md p-4 sm:p-6">
-          <div className="bg-[#242424] rounded-md p-4 border border-neutral-800">
+        <section className="flex-1 bg-[#181818] rounded-md p-3 mt-auto sm:p-4">
+          <div className="bg-[#242424] rounded-md p-3 border border-neutral-800">
             {!resumeUrl ? (
               <div className="text-center py-12 text-neutral-300">No resume link found. Add it in Edit Profile.</div>
             ) : (
@@ -74,5 +74,5 @@ export default function Resume() {
     </div>
   )
 
-  return <div className="max-w-7xl mx-auto p-4">{content}</div>
+  return <div className="max-w-7xl mx-auto px-2 sm:px-3 pt-4 sm:pt-6 pb-8">{content}</div>
 }

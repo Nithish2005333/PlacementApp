@@ -23,6 +23,8 @@ export default function Semester() {
   const [editing, setEditing] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [saved, setSaved] = useState(false)
+  const [sgpaInput, setSgpaInput] = useState<string>('')
 
   const allowedGrades: string[] = ['O', 'A+', 'A', 'B+', 'B', 'C', 'RA']
 
@@ -136,8 +138,33 @@ export default function Semester() {
     setSaving(true)
     setError(null)
     try {
-      await api.put('/students/me', student)
+      // Build minimal, sanitized payload: only semesters under academic
+      // Normalize semesters and compute totalCredits per semester
+      const semesters = (student?.academic?.semesters || []).map((sem: any) => {
+        const subjects = (sem.subjects || []).map((sub: any) => ({
+          subjectName: String(sub.subjectName || ''),
+          subjectCode: String(sub.subjectCode || ''),
+          credits: Number(sub.credits || 0),
+          grade: String(sub.grade || '')
+        }))
+        const totalCredits = subjects.reduce((sum: number, s: any) => sum + (Number(s.credits) || 0), 0)
+        return {
+          semesterNumber: Number(sem.semesterNumber),
+          subjects,
+          sgpa: Number(sem.sgpa || 0),
+          totalCredits: Number(totalCredits || 0)
+        }
+      })
+      // Compute CGPA (credit-weighted mean of SGPA where credits > 0)
+      const cgpaDen = semesters.reduce((sum: number, sem: any) => sum + (sem.totalCredits || 0), 0)
+      const cgpaNum = semesters.reduce((sum: number, sem: any) => sum + ((sem.sgpa || 0) * (sem.totalCredits || 0)), 0)
+      const cgpa = cgpaDen > 0 ? Number((cgpaNum / cgpaDen).toFixed(2)) : 0
+
+      const { data } = await api.put('/students/me', { academic: { semesters } })
+      setStudent(data)
       setEditing(false)
+      setSaved(true)
+      setTimeout(() => setSaved(false), 1200)
     } catch (e: any) {
       setError('Failed to save semester data')
     } finally {
@@ -147,15 +174,31 @@ export default function Semester() {
 
   const currentSemester = getCurrentSemester()
 
+  useEffect(() => {
+    // Keep SGPA input in sync when selection or data changes
+    setSgpaInput(String(currentSemester.sgpa || 0))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedSemester, student?.academic?.semesters])
+
   const content = (
-    <div className="space-y-6 mt-8">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-[#111] text-white px-4 sm:px-6 py-4 rounded-md gap-4">
-        <div className="font-semibold">Semester Management</div>
-        <button onClick={() => { localStorage.removeItem('token'); navigate('/login') }} className="bg-rose-600 hover:bg-rose-500 text-white px-3 py-1 rounded-md w-full sm:w-auto">Logout</button>
+    <div className="space-y-3 pt-1 sm:pt-2 m-auto">
+      {saved && (
+        <div className="fixed inset-0 z-[100] flex items-start justify-center pointer-events-none">
+          <div className="mt-6 px-4 sm:px-6">
+            <div className="pointer-events-auto flex items-center gap-3 rounded-lg bg-emerald-600/95 shadow-lg ring-1 ring-emerald-400/40 px-4 py-3 text-white animate-[fadein_.15s_ease-out]">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5"><path fillRule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm13.36-2.69a.75.75 0 0 0-1.22-.86l-3.82 5.43-1.77-1.77a.75.75 0 1 0-1.06 1.06l2.4 2.4c.33.33.87.29 1.14-.08l5.39-6.18Z" clipRule="evenodd"/></svg>
+              <div className="text-sm font-medium">Semester saved</div>
+            </div>
+          </div>
+        </div>
+      )}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-[#111] text-white px-3 sm:px-4 py-4 rounded-md gap-4">
+        <div className="font-bold text-3xl bg-gradient-to-r from-sky-400 to-purple-400 bg-clip-text text-transparent">Placement App</div>
+        <button onClick={() => { localStorage.removeItem('token'); navigate('/login') }} className="bg-rose-600 hover:bg-rose-500 text-white px-4 py-2 rounded-md sm:ml-auto">Logout</button>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-4">
-        <nav className="w-full lg:w-56 bg-[#202020] rounded-md p-2">
+      <div className="flex flex-col lg:flex-row gap-2 sm:gap-3">
+        <nav className="w-full lg:w-56 bg-[#202020] rounded-md p-2 sticky top-2 self-start max-h-[calc(100vh-1rem)] overflow-auto z-10">
           <ul className="flex lg:flex-col space-x-2 lg:space-x-0 lg:space-y-1">
             <li><Link className="block px-3 py-2 text-neutral-300 hover:text-white hover:bg-[#333] rounded" to="/profile">Profile</Link></li>
             <li><span className="block px-3 py-2 bg-[#333] text-white rounded border-l-4 border-sky-600">Semester</span></li>
@@ -163,15 +206,15 @@ export default function Semester() {
           </ul>
         </nav>
 
-        <section className="flex-1 bg-[#181818] rounded-md p-4 sm:p-6">
-          <div className="bg-[#242424] rounded-md p-4 border border-neutral-800">
+        <section className="flex-1 bg-[#181818] rounded-md p-3 mt-auto sm:p-4">
+          <div className="bg-[#242424] rounded-md p-3 border border-neutral-800">
             <div className="mb-8">
               <h1 className="text-2xl font-bold mb-2">Semester Management</h1>
               <p className="text-neutral-400">Select a semester to manage your academic records</p>
             </div>
 
             {/* Semester Cards Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-8">
+            <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-4 mb-8">
               {[1,2,3,4,5,6,7,8].map(sem => {
                 const semesterData = student?.academic?.semesters?.find((s: Semester) => s.semesterNumber === sem)
                 const isSelected = selectedSemester === sem
@@ -181,7 +224,7 @@ export default function Semester() {
                   <div
                     key={sem}
                     onClick={() => setSelectedSemester(sem)}
-                    className={`p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 h-28 flex items-center justify-center ${
+                    className={`p-3 sm:p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 h-24 sm:h-28 flex items-center justify-center ${
                       isSelected 
                         ? 'border-sky-500 bg-sky-500/10' 
                         : 'border-neutral-600 bg-neutral-800 hover:border-sky-400 hover:bg-neutral-700'
@@ -219,37 +262,58 @@ export default function Semester() {
                 {!editing && (
                   <button 
                     onClick={() => setEditing(true)}
-                    className="px-4 py-2 bg-sky-600 hover:bg-sky-500 text-white rounded-md mt-4 sm:mt-0"
-                  >
-                    Edit Semester
+                    className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-md border border-sky-500 text-sky-300 hover:text-white bg-transparent hover:bg-sky-600/20 text-sm sm:text-base font-medium transition-colors text-center">✎ Edit Semester
                   </button>
                 )}
               </div>
 
               <div className="p-4 bg-[#1f1f1f] rounded-md">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-center">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-center">
                   <div>
                     {editing ? (
                       <div className="flex flex-col items-center gap-2">
                         <label className="text-sm text-neutral-400">SGPA</label>
-                        <input
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          max="10"
-                          value={currentSemester.sgpa || 0}
-                          onChange={(e) => {
-                            const updatedSemesters = [...(student.academic.semesters || [])]
-                            const semesterIndex = updatedSemesters.findIndex((s: Semester) => s.semesterNumber === selectedSemester)
-                            if (semesterIndex >= 0) {
-                              updatedSemesters[semesterIndex].sgpa = Number(e.target.value)
-                            } else {
-                              updatedSemesters.push({ ...currentSemester, sgpa: Number(e.target.value) })
-                            }
-                            setStudent({ ...student, academic: { ...student.academic, semesters: updatedSemesters } })
-                          }}
-                          className="w-40 px-3 py-2 bg-neutral-800 border border-neutral-700 rounded text-white text-center"
-                        />
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            max="10"
+                            value={sgpaInput}
+                            onChange={(e) => setSgpaInput(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                const val = Math.max(0, Math.min(10, Number(sgpaInput)))
+                                const updatedSemesters = [...(student.academic.semesters || [])]
+                                const semesterIndex = updatedSemesters.findIndex((s: Semester) => s.semesterNumber === selectedSemester)
+                                if (semesterIndex >= 0) {
+                                  updatedSemesters[semesterIndex].sgpa = val
+                                } else {
+                                  updatedSemesters.push({ ...currentSemester, sgpa: val })
+                                }
+                                setStudent({ ...student, academic: { ...student.academic, semesters: updatedSemesters } })
+                              }
+                            }}
+                            className="w-28 sm:w-40 px-3 py-2 bg-neutral-800 border border-neutral-700 rounded text-white text-center"
+                          />
+                          <button
+                            onClick={() => {
+                              const val = Math.max(0, Math.min(10, Number(sgpaInput)))
+                              const updatedSemesters = [...(student.academic.semesters || [])]
+                              const semesterIndex = updatedSemesters.findIndex((s: Semester) => s.semesterNumber === selectedSemester)
+                              if (semesterIndex >= 0) {
+                                updatedSemesters[semesterIndex].sgpa = val
+                              } else {
+                                updatedSemesters.push({ ...currentSemester, sgpa: val })
+                              }
+                              setStudent({ ...student, academic: { ...student.academic, semesters: updatedSemesters } })
+                            }}
+                            className="px-3 py-2 bg-sky-600 hover:bg-sky-500 text-white rounded text-sm disabled:opacity-50"
+                            disabled={Number.isNaN(Number(sgpaInput))}
+                          >
+                            Add SGPA
+                          </button>
+                        </div>
                       </div>
                     ) : (
                       <>
@@ -322,14 +386,15 @@ export default function Semester() {
                         <div>
                           <label className="text-sm text-neutral-400">Credits</label>
                           {editing ? (
-                            <input 
-                              type="number"
-                              value={subject.credits}
+                            <select 
+                              value={String(subject.credits)}
                               onChange={(e) => updateSubject(index, 'credits', Number(e.target.value))}
                               className="w-full px-2 py-1 bg-neutral-800 border border-neutral-700 rounded text-white text-sm"
-                              min="0"
-                              step="0.5"
-                            />
+                            >
+                              {Array.from({ length: 11 }, (_, i) => i).map(n => (
+                                <option key={n} value={n}>{n}</option>
+                              ))}
+                            </select>
                           ) : (
                             <div className="text-white">{subject.credits || '-'}</div>
                           )}
