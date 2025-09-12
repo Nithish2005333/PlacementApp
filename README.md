@@ -1,163 +1,129 @@
+# Placement App
 
-# 📌 Placement App  
+A full-stack placement management app for students and admins. Students can register, log in, manage profiles, semesters, and resume links. Admins can view departments, filter students by year and department, preview resumes, and manage student records.
 
-A **full-stack monorepo** for managing student placements.  
-- **Backend:** Express.js + MongoDB (Mongoose)  
-- **Frontend:** React (Vite) + Tailwind CSS  
-- **Deployment:** Single Render web service – Express statically serves the built React client.  
+## Features
 
----
+- Student
+  - Register and login (register number: exactly 12 digits)
+  - Edit profile, academic details, links (resume, portfolio, LinkedIn, GitHub)
+  - Resume preview and download
+- Admin
+  - Admin login
+  - Dashboard by year and department
+  - Student list with real-time search (by name or register number)
+  - Student details: profile, semester view, resume preview and download
+  - Delete student
 
-## 📂 Project Structure
-```bash
-Placement/
-├─ server/                # Backend
-│  ├─ index.js            # Express entrypoint
-│  ├─ lib/db.js           # MongoDB connection
-│  ├─ middleware/auth.js  # JWT middleware
-│  ├─ models/             # Student, Admin schemas
-│  └─ routes/             # /auth, /students, /admin
-│
-├─ client/                # Frontend (Vite + React + Tailwind)
-│  ├─ index.html
-│  ├─ vite.config.ts
-│  ├─ tailwind.config.js
-│  └─ src/
-│     ├─ lib/api.ts       # Axios wrapper with JWT
-│     ├─ pages/           # React pages (student/admin)
-│     └─ main.tsx         # Router setup
-│
-├─ package.json           # Root scripts
-├─ Procfile               # Render process definition
-└─ CSS/, *.html           # Legacy static pages (optional)
-````
+## Recent Improvements
 
----
+- Robust resume download (handles Google Drive links, sensible filenames)
+- Mobile-friendly admin navigation and layouts (sticky/horizontal scroll, tighter spacing)
+- Consistent button styles across admin pages
+- Register/Login/Admin Login pages:
+  - Unified heading design and link hover colors
+  - Register page uses dedicated styling with dark theme
+  - Dropdowns styled to match inputs; placeholder shows muted color
+  - Register number validation: only digits, exactly 12 (Register and Login)
+  - Mobile tuning: smaller input boxes on Register, improved spacing
+- Removed gradient seam line artifact on auth cards
 
-## ⚡ Prerequisites
+## Tech Stack
 
-* **Node.js** ≥ 18
-* **MongoDB Atlas URI**
+- Frontend: React, TypeScript, React Router, Vite, CSS
+- Backend: Node.js, Express (API)
+- Auth: Token-based (localStorage)
 
----
+## Getting Started
 
-## 🔑 Environment Variables
+1. Clone
+   ```bash
+   git clone https://github.com/your-username/placement-app.git
+   cd placement-app
+   ```
 
-Create a `.env` file in the repo root:
+2. Install
+   ```bash
+   npm install
+   ```
 
-```env
-PORT=10000
-MONGODB_URI=mongodb+srv://<user>:<password>@cluster0.yqzgkin.mongodb.net/placement?retryWrites=true&w=majority&appName=Cluster0
-JWT_SECRET=change_me
-CLIENT_ORIGIN=http://localhost:5173
-```
-
----
-
-## 🚀 Run Locally (Development)
-
-Install dependencies:
-
-```bash
-npm install
-```
-
-Run **frontend** (Vite, port `5173`):
-
-```bash
-npm run client:dev
-```
-
-Run **backend** (Express, port `10000`):
-
-```bash
-npm run dev
-```
-
-> Vite dev server proxies API requests from `/api` → `http://localhost:10000`.
-
-Seed an admin (optional):
-
-```http
-POST http://localhost:10000/api/auth/admin/seed
-```
-
----
-
-## 📦 Build & Serve (Production-like)
-
-```bash
-npm run build   # builds frontend into client/dist
-npm start       # starts Express, serves built client
-```
-
-Now open: **[http://localhost:10000](http://localhost:10000)**
-
----
-
-## 🌐 Deploy on Render
-
-1. Create a **Web Service** from this repo.
-2. Configure:
-
-   * **Build command:**
-
-     ```bash
-     npm install
+3. Environment
+   - Client `.env` example:
      ```
-   * **Start command:**
-
-     ```bash
-     node server/index.js
+     VITE_API_BASE_URL=http://localhost:5173
      ```
-   * **Environment variables:** `PORT`, `MONGODB_URI`, `JWT_SECRET`.
+   - Server `.env` example:
+     ```
+     PORT=3000
+     JWT_SECRET=your_secret
+     MONGO_URI=mongodb+srv://...
+     ```
 
-Express will serve the React build automatically.
+4. Run
+   - Client:
+     ```bash
+     npm run dev
+     ```
+   - Server:
+     ```bash
+     npm run server
+     ```
 
----
+5. Build
+   ```bash
+   npm run build
+   ```
 
-## 📱 Responsive Notes
+## Key Paths (Code Map)
 
-* React app: Tailwind responsive utilities.
-* Legacy static pages: `CSS/login.css` includes mobile tweaks with
+- Client
+  - Entry and routes
+    - `client/src/main.tsx`
+    - `client/src/components/ProtectedRoute.tsx`
+  - Pages (Student)
+    - `client/src/pages/Login.tsx`
+    - `client/src/pages/Register.tsx`
+    - `client/src/pages/Profile.tsx`
+    - `client/src/pages/Semester.tsx`
+    - `client/src/pages/Resume.tsx`
+  - Pages (Admin)
+    - `client/src/pages/admin/AdminLogin.tsx`
+    - `client/src/pages/admin/Dashboard.tsx`
+    - `client/src/pages/admin/Departments.tsx`
+    - `client/src/pages/admin/StudentList.tsx`
+    - `client/src/pages/admin/StudentDetails.tsx`
+  - Styles
+    - `client/src/styles/legacy-login.css`
+    - `client/src/styles/register.css`
+  - API helper
+    - `client/src/lib/api.ts` (base Axios instance or fetch wrapper)
 
-  ```css
-  @media (max-width: 480px) { ... }
-  ```
+- Server
+  - `server/index.js` or `server/app.js` (server bootstrap)
+  - `server/routes/*.js` (Express routes)
+  - `server/controllers/*.js` (route handlers)
+  - `server/models/*.js` (DB models)
+  - `server/middleware/*.js` (auth, errors)
 
----
+## Usage Notes
 
-## 📡 API Endpoints (Summary)
+- Register Number must be exactly 12 digits
+  - Inputs sanitize non-digits live; pattern enforces 12 digits on submit
+- Admin pages optimized for mobile:
+  - Sidebar turns into horizontally scrollable tabs on small screens
+  - Sticky sidebar only on large screens
+- Resume download:
+  - Supports direct and Google Drive links
+  - Falls back to opening a new tab if blob download is blocked by CORS
 
-### Student
+## Contributing
 
-* `POST /api/auth/student/register`
-* `POST /api/auth/student/login`
-* `GET /api/students/me`
-* `PUT /api/students/me`
+Pull requests are welcome. For major changes, please open an issue first to discuss what you’d like to change.
 
-### Admin
+## License
 
-* `POST /api/auth/admin/login`
-* `GET /api/auth/admin/years`
-* `GET /api/auth/admin/departments`
-* `GET /api/students?year=&department=`
-* `GET /api/students/:id`
-* `PUT /api/students/:id`
+MIT License. See LICENSE for details.
 
----
+## Copyright
 
-## 🛠️ Common Issues
-
-* API calls failing in dev → ensure backend is on `:10000` and proxy is set in `client/vite.config.ts`.
-* CORS issues → check `CLIENT_ORIGIN` matches your frontend dev URL.
-
----
-
-## 📖 License
-
-Nithishwaran © 2025 Placement App Contributors
-
-```
-
-
+Copyright © 2025 Nithishwaran. All rights reserved.
