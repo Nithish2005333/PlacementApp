@@ -156,11 +156,10 @@ Express will serve the React build automatically.
 
 ## 📖 License
 
-MIT © 2025 Placement App Contributors
+Nithishwaran © 2025 Placement App Contributors
 
 ```
 
 ---
 
-Do you want me to also include **shields.io badges** (Node.js, React, MongoDB, Render) at the top for a more professional GitHub look?
-```
+
