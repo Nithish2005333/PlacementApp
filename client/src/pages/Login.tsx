@@ -26,7 +26,7 @@ export default function Login() {
   }
 
   return (
-    <div className="form-container" style={{ margin: 'auto' }}>
+    <div className="form-container">
       <h1>LOGIN</h1>
       <form className="form" onSubmit={submit}>
         {error && <div style={{ color: '#f66', textAlign: 'center', fontSize: 12 }}>{error}</div>}

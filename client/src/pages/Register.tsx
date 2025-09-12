@@ -72,7 +72,7 @@ export default function Register() {
             <option value="First">First Year</option>
             <option value="Second">Second Year</option>
             <option value="Third">Third Year</option>
-            <option value="Fourth">Fourth Year</option>
+            <option value="Final">Final Year</option>
           </select>
         </div>
         <div className="form-group">

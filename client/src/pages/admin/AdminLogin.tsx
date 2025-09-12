@@ -15,7 +15,7 @@ export default function AdminLogin() {
       const { data } = await api.post('/auth/admin/login', form)
       localStorage.setItem('token', data.token)
       localStorage.setItem('role', 'admin')
-      navigate('/admin/dashboard', { replace: true })
+      navigate('/admin/departments', { replace: true })
     } catch (e: any) {
       setError(e.response?.data?.error || 'Login failed')
     }

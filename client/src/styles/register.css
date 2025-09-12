@@ -13,19 +13,20 @@ body {
 /* Wrapper specific to the register page so we can control spacing without affecting login */
 .register-page {
     min-height: 100vh;
-    padding: 50px 16px;
-    /* extra top/bottom space to ensure no touch */
+    height: 100vh;
+    padding: 100px 20px 80px 20px;
+    /* increased top padding to prevent cutoff, keeping bottom as is */
     display: flex;
     align-items: center;
     justify-content: center;
     width: 100%;
-    overflow-x: hidden;
-    overflow-y: auto;
+    margin-top: 100px;
+    /* overflow: hidden; */
+    /* box-sizing: border-box; */
 }
 
 .form-container {
-    margin-top: 0.2rem;
-    margin-bottom: 1rem;
+    margin: 0;
     width: 100%;
     max-width: 480px;
     box-sizing: border-box;
@@ -54,4 +55,188 @@ body {
     background-color: #ffffff; /* light background so it's readable */
 }
 
-/* Reuse the same .form-container styles from legacy-login.css; margins are adjusted via the wrapper. */
+/* Form Container Styling - copied from legacy-login.css */
+.register-page .form-container {
+    background: linear-gradient(#212121, #212121) padding-box,
+        linear-gradient(145deg, transparent 50%, #e81cff, #40c9ff) border-box;
+    border: 3px solid transparent;
+    padding: 30px 50px 30px 50px;
+    font-size: 14px;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    box-sizing: border-box;
+    border-radius: 16px;
+    background-size: 200% 100%;
+    animation: gradient 5s ease infinite;
+    margin: 0 auto 200px auto;
+    width: 100%;
+    max-width: 480px;
+    justify-content: center;
+}
+
+/* Title */
+.register-page .form-container h1 {
+    text-align: center;
+    margin: 0 0 15px 0;
+    font-size: 25px;
+    font-weight: 700;
+}
+
+/* Form Layout */
+.register-page .form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
+}
+
+/* Form Groups */
+.register-page .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.register-page .form-group label {
+    color: #aaa;
+    font-weight: 600;
+    font-size: 14px;
+    text-align: left;
+}
+
+.register-page .form-group input {
+    width: 100%;
+    height: 44px;
+    margin: 0;
+    padding: 10px 16px;
+    border-radius: 8px;
+    color: #fff;
+    font-family: inherit;
+    background-color: transparent;
+    border: 1.5px solid #414141;
+    display: block;
+}
+
+.register-page .form-group input::placeholder {
+    opacity: 0.5;
+}
+
+.register-page .form-group input:focus {
+    outline: none;
+    border-color: #e81cff;
+}
+
+.register-page .form-group input:focus-visible {
+    box-shadow: 0 0 0 3px rgba(232, 28, 255, 0.35);
+}
+
+/* "Have an account?" text + link */
+.register-page .form-group p {
+    margin: 0;
+    text-align: center;
+    font-size: 14px;
+}
+
+.register-page .form-group a {
+    margin-left: 3px;
+    color: blue;
+    transition: color 0.3s ease;
+}
+
+.register-page .form-group a:hover {
+    color: green;
+}
+
+/* Glow Button Wrapper */
+.register-page .glow-btn-container {
+    position: relative;
+    display: inline-block;
+    padding: 3px;
+    border-radius: 0.9em;
+    background: linear-gradient(90deg, #03a9f4, #f441a5);
+    transition: all 0.4s ease;
+    align-self: center;
+    margin-top: 10px;
+    z-index: 0;
+    isolation: isolate;
+}
+
+.register-page .glow-btn-container::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #03a9f4, #f441a5);
+    filter: blur(0);
+    opacity: 0;
+    transition: opacity 0.4s ease, filter 0.4s ease;
+    z-index: -1;
+    pointer-events: none;
+}
+
+.register-page .glow-btn-container:hover::before {
+    opacity: 1;
+    filter: blur(1.2em);
+}
+
+.register-page .glow-btn-container button {
+    font-size: 1em;
+    font-weight: 600;
+    padding: 0.8em 1.2em;
+    border-radius: 0.7em;
+    border: none;
+    background: #111;
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 2px 2px 4px #00000080;
+    transition: transform 0.2s ease;
+}
+
+.register-page .glow-btn-container button:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(64, 201, 255, 0.35), 2px 2px 4px #00000080;
+}
+
+.register-page .glow-btn-container button:active {
+    transform: scale(0.95);
+}
+
+@keyframes gradient {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+/* Mobile responsive styles - using same values as PC */
+@media (max-width: 480px) {
+    .register-page {
+        padding: 80px 20px 80px 20px;
+        overflow-y: auto;
+        margin-top: 10px;
+    }
+    
+    .register-page .form-container {
+        width: 100%;
+        max-width: 480px;
+        margin: 200px auto 0 auto;
+        padding: 30px 50px 30px 50px;
+        gap: 18px;
+    }
+    
+    .register-page .form-container h1 {
+        margin: 0 0 15px 0;
+        font-size: 25px;
+    }
+    
+    .register-page .form {
+        gap: 16px;
+    }
+}

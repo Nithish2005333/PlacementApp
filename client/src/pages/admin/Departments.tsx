@@ -9,9 +9,17 @@ const depts = [
   { name: 'VLSI', fullName: 'VLSI Design' }
 ]
 
+const years = [
+  { name: 'First', description: '1st Year Students' },
+  { name: 'Second', description: '2nd Year Students' },
+  { name: 'Third', description: '3rd Year Students' },
+  { name: 'Final', description: '4th Year Students' }
+]
+
 export default function Departments() {
   const q = new URLSearchParams(useLocation().search)
   const year = q.get('year') || ''
+  const department = q.get('department') || ''
   const navigate = useNavigate()
 
   const handleLogout = () => {
@@ -20,39 +28,86 @@ export default function Departments() {
     navigate('/admin/login', { replace: true })
   }
 
-  return (
-    <div className="max-w-4xl mx-auto p-6">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <nav className="text-sm text-neutral-400 mb-2">
-            <Link to="/admin/dashboard" className="hover:text-white">Dashboard</Link>
-            <span className="mx-2">›</span>
-            <span className="text-white">Departments - {year} Year</span>
-          </nav>
-          <h1 className="text-2xl font-semibold">Select Department</h1>
-          <p className="text-neutral-400">Choose a department to view {year} year students</p>
-        </div>
-        <button 
-          onClick={handleLogout}
-          className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-md"
-        >
-          Logout
-        </button>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {depts.map(d => (
-          <Link 
-            key={d.name} 
-            to={`/admin/students?year=${year}&department=${encodeURIComponent(d.name)}`} 
-            className="p-6 rounded-lg bg-neutral-900 border border-neutral-800 hover:border-sky-600 hover:bg-neutral-800 transition-colors"
+  // If no department selected, show department selection
+  if (!department) {
+    return (
+      <div className="max-w-4xl mx-auto p-4 sm:p-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
+          <div>
+            <h1 className="font-bold text-2xl sm:text-3xl bg-gradient-to-r from-sky-400 to-purple-400 bg-clip-text text-transparent">Admin Dashboard</h1>
+            <p className="text-neutral-400 text-sm sm:text-base">Select a department to view years</p>
+          </div>
+          <button 
+            onClick={handleLogout}
+            className="px-3 py-1.5 sm:px-4 sm:py-2 bg-red-600 hover:bg-red-500 text-white rounded-md w-auto text-sm sm:text-base"
           >
-            <div className="text-lg font-semibold text-sky-400 mb-2">{d.name}</div>
-            <div className="text-sm text-neutral-300">{d.fullName}</div>
-          </Link>
-        ))}
+            Logout
+          </button>
+        </div>
+        <h2 className="text-lg sm:text-xl font-semibold mb-4">Select Department</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+          {depts.map(d => (
+            <Link 
+              key={d.name} 
+              to={`/admin/departments?department=${encodeURIComponent(d.name)}`} 
+              className="p-4 sm:p-6 rounded-lg bg-neutral-900 border border-neutral-800 hover:border-sky-600 hover:bg-neutral-800 transition-colors group"
+            >
+              <div className="text-lg font-semibold text-sky-400 mb-2 group-hover:text-sky-300">{d.name}</div>
+              <div className="text-sm text-neutral-300">{d.fullName}</div>
+            </Link>
+          ))}
+        </div>
       </div>
-    </div>
-  )
+    )
+  }
+
+  // If department selected but no year, show year selection
+  if (department && !year) {
+    return (
+      <div className="max-w-4xl mx-auto p-4 sm:p-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
+          <div>
+            <nav className="text-xs sm:text-sm text-neutral-400 mb-2">
+              <Link to="/admin/departments" className="hover:text-white">Dashboard</Link>
+              <span className="mx-2">›</span>
+              <Link to="/admin/departments" className="hover:text-white">{department} Department</Link>
+            </nav>
+            <h1 className="text-xl sm:text-2xl font-semibold">Select Year</h1>
+            <p className="text-neutral-400 text-sm sm:text-base">Choose a year to view {department} department students</p>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-2 w-auto">
+            <button 
+              onClick={() => navigate('/admin/departments')}
+              className="px-3 py-1.5 sm:px-4 sm:py-2 bg-gray-600 hover:bg-gray-500 text-white rounded-md w-auto text-sm sm:text-base"
+            >
+              ← Back
+            </button>
+            <button 
+              onClick={handleLogout}
+              className="px-3 py-1.5 sm:px-4 sm:py-2 bg-red-600 hover:bg-red-500 text-white rounded-md w-auto text-sm sm:text-base"
+            >
+              Logout
+            </button>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          {years.map(y => (
+            <Link 
+              key={y.name} 
+              to={`/admin/students?year=${y.name}&department=${encodeURIComponent(department)}`} 
+              className="p-4 sm:p-6 rounded-lg bg-neutral-900 border border-neutral-800 hover:border-sky-600 hover:bg-neutral-800 transition-colors group"
+            >
+              <div className="text-xl sm:text-2xl font-bold text-sky-400 mb-2 group-hover:text-sky-300">{y.name}</div>
+              <div className="text-xs sm:text-sm text-neutral-300 leading-tight">{y.description}</div>
+            </Link>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  // This should not happen as we redirect to students page
+  return null
 }
 
 

@@ -89,7 +89,7 @@ export default function Profile() {
                     <tbody className="divide-y divide-neutral-800">
                       <tr><td className="py-1 pr-2 text-neutral-400 whitespace-nowrap">Name</td><td className="py-1 text-neutral-200 break-words break-all">{student?.name ?? '-'}</td></tr>
                       <tr><td className="py-1 pr-2 text-neutral-400 whitespace-nowrap">Register Number</td><td className="py-1 text-neutral-200 break-words break-all">{student?.registerNumber ?? '-'}</td></tr>
-                      <tr><td className="py-1 pr-2 text-neutral-400 whitespace-nowrap">College</td><td className="py-1 text-neutral-200 break-words break-all">{student?.collegeName ?? '-'}</td></tr>
+                      <tr><td className="py-1 pr-2 text-neutral-400 whitespace-nowrap">College</td><td className="py-1 text-neutral-200 break-words break-all">{student?.collegeName || 'Anna University regional campus, Coimbatore'}</td></tr>
                       <tr><td className="py-1 pr-2 text-neutral-400 whitespace-nowrap">Department</td><td className="py-1 text-neutral-200 break-words break-all">{student?.department ?? '-'}</td></tr>
                       <tr><td className="py-1 pr-2 text-neutral-400 whitespace-nowrap">Year</td><td className="py-1 text-neutral-200 break-words break-all">{(() => { const y=(student?.year||'').toString(); return y.toLowerCase()==='fourth' ? 'Final Year' : y; })()}</td></tr>
                       <tr><td className="py-1 pr-2 text-neutral-400 whitespace-nowrap">Current Semester</td><td className="py-1 text-neutral-200 break-words break-all">{(() => { const cs = (student?.academic?.currentSemester ?? student?.currentSemester); return (cs === undefined || cs === null || cs === 0 || cs === '') ? '-' : cs; })()}</td></tr>

@@ -1,9 +1,3 @@
-import Resume from './pages/Resume'
-        <Route path="/profile/resume" element={
-          <ProtectedRoute requiredRole="student">
-            <Resume />
-          </ProtectedRoute>
-        } />
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
@@ -13,6 +7,7 @@ import Login from './pages/Login'
 import Profile from './pages/Profile'
 import EditProfile from './pages/EditProfile'
 import Semester from './pages/Semester'
+import Resume from './pages/Resume'
 import AdminLogin from './pages/admin/AdminLogin'
 import Dashboard from './pages/admin/Dashboard'
 import Departments from './pages/admin/Departments'
@@ -38,6 +33,11 @@ function App() {
         <Route path="/profile/semester" element={
           <ProtectedRoute requiredRole="student">
             <Semester />
+          </ProtectedRoute>
+        } />
+        <Route path="/profile/resume" element={
+          <ProtectedRoute requiredRole="student">
+            <Resume />
           </ProtectedRoute>
         } />
         <Route path="/edit" element={

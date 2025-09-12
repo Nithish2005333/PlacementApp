@@ -366,7 +366,7 @@ export default function EditProfile() {
                           <option value="First">First Year</option>
                           <option value="Second">Second Year</option>
                           <option value="Third">Third Year</option>
-                          <option value="Fourth">Final Year</option>
+                          <option value="Final">Final Year</option>
                         </select>
                         <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                           <svg className="w-5 h-5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -399,14 +399,6 @@ export default function EditProfile() {
                         onChange={(e) => setForm({ ...form, profilePhoto: e.target.value })}
                       />
         </div>
-        <div className="space-y-1">
-                      <label className="text-sm font-medium">College Name</label>
-                      <input 
-                        className="w-full px-3 py-2 rounded-md bg-neutral-800 border border-neutral-700 focus:outline-none focus:border-sky-500" 
-                        value={form.collegeName || ''} 
-                        onChange={(e) => setForm({ ...form, collegeName: e.target.value })}
-                      />
-                    </div>
                     <div className="sm:col-span-2 space-y-1">
                       <label className="text-sm font-medium">Address</label>
                       <textarea 
