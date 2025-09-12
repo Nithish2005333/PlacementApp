@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import api from '../../lib/api'
 import '../../styles/legacy-login.css'
+import Footer from '../../components/Footer'
 
 export default function AdminLogin() {
   const navigate = useNavigate()
@@ -21,8 +22,16 @@ export default function AdminLogin() {
     }
   }
 
+  const linkBase: React.CSSProperties = { color: '#a78bfa', fontWeight: 700, textDecoration: 'none', textUnderlineOffset: 2, transition: 'color .15s ease, text-decoration-color .15s ease' } as any
+  const hoverLink = (e: React.MouseEvent<HTMLElement>) => { const el = e.currentTarget as HTMLElement; el.style.color = '#c084fc'; el.style.textDecoration = 'underline' }
+  const unhoverLink = (e: React.MouseEvent<HTMLElement>) => { const el = e.currentTarget as HTMLElement; el.style.color = '#a78bfa'; el.style.textDecoration = 'none' }
+
   return (
-    <div className="form-container">
+    <div className="form-container" style={{ position: 'relative', paddingBottom: 48 }}>
+      <div style={{ textAlign: 'center', margin: '8px 0 12px' }}>
+        <div className="brand-title">Placement App</div>
+        <div className="brand-subtitle">Admin access</div>
+      </div>
       <h1>LOGIN</h1>
       <form className="form" onSubmit={submit}>
         {error && <div style={{ color: '#f66', textAlign: 'center', fontSize: 12 }}>{error}</div>}
@@ -38,9 +47,10 @@ export default function AdminLogin() {
           <button type="submit">Login</button>
         </div>
         <div className="form-group" style={{ textAlign: 'center', fontSize: 14 }}>
-          <Link to="/login">Student Login</Link>
+          <Link to="/login" style={linkBase} onMouseEnter={hoverLink} onMouseLeave={unhoverLink}>Student Login</Link>
         </div>
       </form>
+      <Footer fixed />
     </div>
   )
 }

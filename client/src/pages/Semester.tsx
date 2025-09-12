@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
+import Footer from '../components/Footer'
 import api from '../lib/api'
 
 type Subject = {
@@ -458,5 +459,5 @@ export default function Semester() {
     </div>
   )
 
-  return <div className="max-w-7xl mx-auto p-4">{content}</div>
+  return <div className="max-w-7xl mx-auto p-4">{content}<Footer /></div>
 }

@@ -8,13 +8,13 @@ body {
 body {
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start; /* start from top, not vertically centered */
     background: #111;
     font-family: 'Poppins', sans-serif;
     min-height: 100vh;
     height: 100vh;
     margin: 0;
-    padding: 100px 20px;
+    padding: 40px 20px 80px 20px; /* slightly more top space */
     box-sizing: border-box;
 }
 
@@ -33,16 +33,19 @@ body {
     gap: 20px;
     box-sizing: border-box;
     border-radius: 16px;
-    background-size: 200% 100%;
-    animation: gradient 5s ease infinite;
-    margin: 0 auto;
+    background-size: 100% 100%; /* prevent animated seam lines */
+    background-position: center;
+    background-repeat: no-repeat;
+    overflow: hidden; /* clip any gradient seams at edges */
+    /* animation removed to avoid top color line */
+    margin: 24px auto 80px auto; /* ensure gap from top and bottom */
     position: relative;
 }
 
 /* Mobile tweaks */
 @media (max-width: 480px) {
     body {
-        padding: 100px 10px;
+        padding: 48px 10px 72px 10px; /* reduced but present top/bottom on mobile */
     }
     
     .form-container {
@@ -50,6 +53,9 @@ body {
         max-width: 420px;
         padding: 24px;
         margin: 0 auto;
+    }
+    .form-container .brand-title {
+        font-size: 26px;
     }
 }
 
@@ -70,9 +76,30 @@ body {
 /* Title */
 .form-container h1 {
     text-align: center;
-    margin: 0 0 20px 0;
+    margin: 0 0 6px 0; /* match register page tight spacing */
     font-size: 25px;
     font-weight: 700;
+}
+
+/* Brand heading and subtitle (auth pages) */
+.form-container .brand-title {
+    text-align: center;
+    font-weight: 900;
+    font-size: 30px;
+    background: linear-gradient(90deg, #38bdf8, #a78bfa);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: 0 0 8px rgba(56,189,248,.15);
+    margin: 0; /* remove gap above subtitle */
+}
+
+.form-container .brand-subtitle {
+    text-align: center;
+    color: #9ca3af;
+    font-size: 13px;
+    letter-spacing: .2px;
+    margin-bottom: 2px; /* minimal gap before form title */
 }
 
 /* Form Layout */
@@ -135,13 +162,17 @@ body {
 
 .form-container .form-group a {
     margin-left: 3px;
-    /* spacing between text and link */
-    color: blue;
-    transition: color 0.3s ease;
+    color: #a78bfa; /* base purple */
+    font-weight: 700;
+    text-decoration: none;
+    text-underline-offset: 2px;
+    transition: color 0.2s ease-out, text-decoration-color 0.2s ease-out, text-shadow 0.2s ease-out;
 }
 
 .form-container .form-group a:hover {
-    color: green;
+    color: #c084fc; /* brighter purple */
+    text-decoration: underline;
+    text-shadow: 0 0 6px rgba(192,132,252,.35);
 }
 
 /* Glow Button Wrapper */

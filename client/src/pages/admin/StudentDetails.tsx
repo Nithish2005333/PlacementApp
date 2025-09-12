@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import api from '../../lib/api'
+import Footer from '../../components/Footer'
 
 export default function StudentDetails() {
   const { id } = useParams()
@@ -9,7 +10,10 @@ export default function StudentDetails() {
   const [activeSection, setActiveSection] = useState<'profile' | 'semester' | 'resume'>('profile')
   const [selectedSemester, setSelectedSemester] = useState<number>(1)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
-  const [showMessage, setShowMessage] = useState<{type: 'success' | 'error', text: string} | null>(null)
+  const [showMessage, setShowMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
+
+  // Consistent styling for header action buttons
+  const headerButtonBase = 'inline-flex items-center justify-center px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base rounded-md border border-white/10 shadow-sm transition-colors active:scale-[.98] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#111]';
 
   const handleLogout = () => {
     localStorage.removeItem('token')
@@ -28,7 +32,7 @@ export default function StudentDetails() {
       await api.delete(`/admin/students/${id}`)
       setShowMessage({ type: 'success', text: 'Student deleted successfully' })
       setShowDeleteModal(false)
-      
+
       // Navigate back after showing success message
       setTimeout(() => {
         navigate(-1)
@@ -37,7 +41,7 @@ export default function StudentDetails() {
       console.error('Failed to delete student:', error)
       setShowMessage({ type: 'error', text: 'Failed to delete student' })
       setShowDeleteModal(false)
-      
+
       // Auto-hide error message after 5 seconds
       setTimeout(() => setShowMessage(null), 5000)
     }
@@ -76,12 +80,12 @@ export default function StudentDetails() {
               <tr><td className="py-1 pr-2 text-neutral-400 whitespace-nowrap">Register Number</td><td className="py-1 text-neutral-200 break-words break-all">{s?.registerNumber ?? '-'}</td></tr>
               <tr><td className="py-1 pr-2 text-neutral-400 whitespace-nowrap">College</td><td className="py-1 text-neutral-200 break-words break-all">{s?.collegeName || 'Anna University regional campus, Coimbatore'}</td></tr>
               <tr><td className="py-1 pr-2 text-neutral-400 whitespace-nowrap">Department</td><td className="py-1 text-neutral-200 break-words break-all">{s?.department ?? '-'}</td></tr>
-              <tr><td className="py-1 pr-2 text-neutral-400 whitespace-nowrap">Year</td><td className="py-1 text-neutral-200 break-words break-all">{(() => { const y=(s?.year||'').toString(); return y.toLowerCase()==='fourth' ? 'Final Year' : y; })()}</td></tr>
+              <tr><td className="py-1 pr-2 text-neutral-400 whitespace-nowrap">Year</td><td className="py-1 text-neutral-200 break-words break-all">{(() => { const y = (s?.year || '').toString(); return y.toLowerCase() === 'fourth' ? 'Final Year' : y; })()}</td></tr>
               <tr><td className="py-1 pr-2 text-neutral-400 whitespace-nowrap">Current Semester</td><td className="py-1 text-neutral-200 break-words break-all">{(() => { const cs = (s?.academic?.currentSemester ?? s?.currentSemester); return (cs === undefined || cs === null || cs === 0 || cs === '') ? '-' : cs; })()}</td></tr>
               <tr><td className="py-1 pr-2 text-neutral-400 whitespace-nowrap">Email</td><td className="py-1 text-neutral-200 break-words break-all">{s?.email ?? '-'}</td></tr>
               <tr><td className="py-1 pr-2 text-neutral-400 whitespace-nowrap">Phone</td><td className="py-1 text-neutral-200 break-words break-all">{s?.phone ?? '-'}</td></tr>
               <tr><td className="py-1 pr-2 text-neutral-400 whitespace-nowrap">Gender</td><td className="py-1 text-neutral-200 break-words break-all">{s?.gender ?? '-'}</td></tr>
-              <tr><td className="py-1 pr-2 text-neutral-400 whitespace-nowrap">Birth Date</td><td className="py-1 text-neutral-200 break-words break-all">{s?.dob ? (() => { const dt = new Date(s.dob); if (isNaN(dt.getTime())) return '-'; const dd = String(dt.getDate()).padStart(2,'0'); const mm = String(dt.getMonth()+1).padStart(2,'0'); const yyyy = dt.getFullYear(); return `${dd}-${mm}-${yyyy}` })() : '-'}</td></tr>
+              <tr><td className="py-1 pr-2 text-neutral-400 whitespace-nowrap">Birth Date</td><td className="py-1 text-neutral-200 break-words break-all">{s?.dob ? (() => { const dt = new Date(s.dob); if (isNaN(dt.getTime())) return '-'; const dd = String(dt.getDate()).padStart(2, '0'); const mm = String(dt.getMonth() + 1).padStart(2, '0'); const yyyy = dt.getFullYear(); return `${dd}-${mm}-${yyyy}` })() : '-'}</td></tr>
               <tr><td className="py-1 pr-2 text-neutral-400 whitespace-nowrap">Address</td><td className="py-1 text-neutral-200 break-words break-all">{s?.address ?? '-'}</td></tr>
             </tbody>
           </table>
@@ -224,44 +228,110 @@ export default function StudentDetails() {
         <div className="flex flex-wrap gap-3">
           {s?.links?.resume && (
             <a
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-[#0b3b4b] hover:bg-[#0e4a5e] text-sky-200 transition-colors"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-md text-white border border-white shadow-md transition transform hover:-translate-y-0.5 active:translate-y-0 w-full sm:w-auto text-center min-w-[140px]"
               href={s.links.resume}
               target="_blank"
+              style={{ backgroundColor: '#0F766E' }} // teal-600
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#0D9488')} // teal-700
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#0F766E')}
             >
-              <span>📄</span>
+              {/* Resume Icon */}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                className="text-white"
+              >
+                <path d="M6 2a2 2 0 0 0-2 2v16c0 1.1.9 2 2 2h12a2 
+               2 0 0 0 2-2V8l-6-6H6zm7 7V3.5L18.5 
+               9H13zM8 13h8v2H8v-2zm0 4h5v2H8v-2z"/>
+              </svg>
               <span className="font-medium">Resume</span>
             </a>
           )}
+
           {s?.links?.portfolio && (
             <a
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-[#12324b] hover:bg-[#174162] text-sky-200 transition-colors"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-md text-white border border-white shadow-md transition transform hover:-translate-y-0.5 active:translate-y-0 w-full sm:w-auto text-center min-w-[140px]"
               href={s.links.portfolio}
               target="_blank"
+              style={{ backgroundColor: '#3730A3' }} // indigo-600
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#4F46E5')} // indigo-700
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#3730A3')}
             >
-              <span>🗂️</span>
+              {/* Portfolio Icon */}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                className="text-white"
+              >
+                <path d="M10 2h4a2 2 0 0 1 2 2v2h4a2 2 0 0 1 
+               2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 
+               2 0 0 1 2-2h4V4a2 2 0 0 1 2-2zm0 
+               4h4V4h-4v2z"/>
+              </svg>
               <span className="font-medium">Portfolio</span>
             </a>
           )}
+
           {s?.links?.linkedin && (
             <a
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-[#0a2a3d] hover:bg-[#0d364c] text-sky-200 transition-colors"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-md text-white border border-white shadow-md transition transform hover:-translate-y-0.5 active:translate-y-0 w-full sm:w-auto text-center min-w-[140px]"
               href={s.links.linkedin}
               target="_blank"
+              style={{ backgroundColor: '#004182' }} // LinkedIn blue
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#0A66C2')} // darker LinkedIn blue
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#004182')}
             >
-              <span>🔗</span>
+              {/* LinkedIn Icon */}
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+                className="text-white"
+                fill="currentColor"
+              >
+                <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.039-1.852-3.039-1.853 
+               0-2.136 1.447-2.136 2.944v5.664H9.352V9h3.414v1.561h.049c.476-.9 
+               1.637-1.852 3.368-1.852 3.602 0 4.268 2.37 
+               4.268 5.455v6.288zM5.337 7.433a2.062 2.062 
+               0 1 1 0-4.124 2.062 2.062 0 0 1 0 
+               4.124zM7.119 20.452H3.554V9h3.565v11.452z"/>
+              </svg>
               <span className="font-medium">LinkedIn</span>
             </a>
           )}
+
           {s?.links?.github && (
             <a
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-[#0b1f2e] hover:bg-[#0f293b] text-sky-200 transition-colors"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-md text-white border border-white shadow-md transition transform hover:-translate-y-0.5 active:translate-y-0 w-full sm:w-auto text-center min-w-[140px]"
               href={s.links.github}
               target="_blank"
+              style={{ backgroundColor: '#181717' }} // GitHub black
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#24292e')} // GitHub hover
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#181717')}
             >
-              <span>🐙</span>
+              {/* GitHub Icon */}
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+                className="text-white"
+                fill="currentColor"
+              >
+                <path d="M12 .5a12 12 0 0 0-3.79 23.4c.6.11.82-.26.82-.58v-2.24c-3.34.73-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.09-.75.08-.74.08-.74 1.2.09 1.83 1.23 1.83 1.23 1.07 1.84 2.81 1.31 3.5 1 .11-.78.42-1.31.76-1.61-2.66-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.23-3.22-.12-.3-.53-1.51.12-3.15 0 0 1-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.3-1.55 3.29-1.23 3.29-1.23.66 1.64.25 2.85.12 3.15.77.84 1.23 1.91 1.23 3.22 0 4.61-2.81 5.62-5.49 5.92.43.37.81 1.1.81 2.22v3.29c0 .32.21.7.83.58A12 12 0 0 0 12 .5z" />
+              </svg>
               <span className="font-medium">GitHub</span>
             </a>
           )}
+
         </div>
       </div>
     </div>
@@ -276,7 +346,7 @@ export default function StudentDetails() {
         totalCredits: 0
       }
     }
-    
+
     const semester = s.academic.semesters.find((sem: any) => sem.semesterNumber === selectedSemester)
     return semester || {
       semesterNumber: selectedSemester,
@@ -288,7 +358,7 @@ export default function StudentDetails() {
 
   const renderSemesterSection = () => {
     const currentSemester = getCurrentSemester()
-    
+
     return (
       <div className="mb-8">
         <h1 className="text-2xl font-bold mb-2">Semester Management</h1>
@@ -296,25 +366,23 @@ export default function StudentDetails() {
 
         {/* Semester Cards Grid */}
         <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-4 mb-8">
-          {[1,2,3,4,5,6,7,8].map(sem => {
+          {[1, 2, 3, 4, 5, 6, 7, 8].map(sem => {
             const semesterData = s?.academic?.semesters?.find((x: any) => x.semesterNumber === sem)
             const isSelected = selectedSemester === sem
             const hasData = semesterData && semesterData.subjects?.length > 0
-            
+
             return (
               <div
                 key={sem}
                 onClick={() => setSelectedSemester(sem)}
-                className={`p-3 sm:p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 h-24 sm:h-28 flex items-center justify-center ${
-                  isSelected 
-                    ? 'border-sky-500 bg-sky-500/10' 
+                className={`p-3 sm:p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 h-24 sm:h-28 flex items-center justify-center ${isSelected
+                    ? 'border-sky-500 bg-sky-500/10'
                     : 'border-neutral-600 bg-neutral-800 hover:border-sky-400 hover:bg-neutral-700'
-                }`}
+                  }`}
               >
                 <div className="text-center">
-                  <div className={`text-2xl font-bold mb-1 ${
-                    isSelected ? 'text-sky-400' : 'text-white'
-                  }`}>
+                  <div className={`text-2xl font-bold mb-1 ${isSelected ? 'text-sky-400' : 'text-white'
+                    }`}>
                     Sem {sem}
                   </div>
                   {hasData && (
@@ -398,33 +466,33 @@ export default function StudentDetails() {
   // Convert Google Drive URL to embeddable preview URL
   const getDrivePreviewUrl = (url: string) => {
     if (!url) return ''
-    
+
     // Handle different Google Drive URL formats
     let fileId = ''
-    
+
     // Format 1: https://drive.google.com/file/d/FILE_ID/view
     const match1 = url.match(/\/file\/d\/([a-zA-Z0-9-_]+)/)
     if (match1) {
       fileId = match1[1]
     }
-    
+
     // Format 2: https://drive.google.com/open?id=FILE_ID
     const match2 = url.match(/[?&]id=([a-zA-Z0-9-_]+)/)
     if (match2) {
       fileId = match2[1]
     }
-    
+
     // Format 3: https://docs.google.com/document/d/FILE_ID/edit
     const match3 = url.match(/\/document\/d\/([a-zA-Z0-9-_]+)/)
     if (match3) {
       fileId = match3[1]
     }
-    
+
     if (fileId) {
       // Return Google Drive embed URL
       return `https://drive.google.com/file/d/${fileId}/preview`
     }
-    
+
     return url
   }
 
@@ -436,42 +504,93 @@ export default function StudentDetails() {
   // Get download URL for Google Drive files
   const getDriveDownloadUrl = (url: string) => {
     if (!url) return ''
-    
+
     let fileId = ''
-    
+
     // Extract file ID from various Google Drive URL formats
     const match1 = url.match(/\/file\/d\/([a-zA-Z0-9-_]+)/)
     if (match1) {
       fileId = match1[1]
     }
-    
+
     const match2 = url.match(/[?&]id=([a-zA-Z0-9-_]+)/)
     if (match2) {
       fileId = match2[1]
     }
-    
+
     const match3 = url.match(/\/document\/d\/([a-zA-Z0-9-_]+)/)
     if (match3) {
       fileId = match3[1]
     }
-    
+
     if (fileId) {
       // Return Google Drive direct download URL
       return `https://drive.google.com/uc?export=download&id=${fileId}`
     }
-    
+
     return url
   }
 
-  // Handle download with proper filename
-  const handleDownload = (url: string) => {
-    const downloadUrl = isGoogleDriveUrl(url) ? getDriveDownloadUrl(url) : url
-    const link = document.createElement('a')
-    link.href = downloadUrl
-    link.download = 'resume' // Default filename
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
+  // Infer a filename from a URL or fallback to a sensible default
+  const inferFilename = (url: string, fallbackBase: string = 'resume') => {
+    try {
+      const u = new URL(url)
+      // Try common query param keys
+      const nameParams = ['filename', 'file', 'name', 'download']
+      for (const key of nameParams) {
+        const val = u.searchParams.get(key)
+        if (val) return decodeURIComponent(val)
+      }
+      // Fallback to last path segment
+      const lastSeg = u.pathname.split('/').filter(Boolean).pop() || ''
+      if (lastSeg) return decodeURIComponent(lastSeg)
+    } catch { }
+    return `${fallbackBase}`
+  }
+
+  // Handle download with proper filename and CORS-safe fallback
+  const handleDownload = async (url: string) => {
+    if (!url) return
+
+    // Prefer Google Drive direct download when applicable
+    const isDrive = isGoogleDriveUrl(url)
+    const downloadUrl = isDrive ? getDriveDownloadUrl(url) : url
+
+    // Try to infer a better filename
+    const studentName = (s?.name || 'resume').toString().trim().replace(/\s+/g, '_')
+    let filename = inferFilename(url, `${studentName}_Resume`)
+    // Ensure an extension if none present
+    if (!/\.[a-zA-Z0-9]{2,8}$/.test(filename)) {
+      const extFromUrl = (url.split('?')[0].split('#')[0].split('.').pop() || '').toLowerCase()
+      const ext = ['pdf', 'doc', 'docx', 'txt'].includes(extFromUrl) ? extFromUrl : 'pdf'
+      filename = `${filename}.${ext}`
+    }
+
+    try {
+      // Attempt fetch -> blob -> objectURL for a smooth download
+      const response = await fetch(downloadUrl, { mode: 'cors' })
+      if (!response.ok) throw new Error('Failed to fetch file')
+      const blob = await response.blob()
+      const objectUrl = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = objectUrl
+      a.download = filename
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(objectUrl)
+      return
+    } catch (e) {
+      // If fetch fails (CORS or Drive auth), fall back to opening direct download URL
+      const a = document.createElement('a')
+      a.href = downloadUrl
+      a.setAttribute('target', '_blank')
+      // download attribute typically ignored cross-origin, but try anyway
+      a.setAttribute('download', filename)
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+    }
   }
 
   const renderResumeSection = () => (
@@ -484,22 +603,22 @@ export default function StudentDetails() {
             <div className="text-sm text-neutral-400 break-all">{s.links.resume}</div>
           </div>
           <div className="flex flex-wrap gap-3">
-            <a 
-              href={s.links.resume} 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="px-4 py-2 bg-green-600 hover:bg-green-500 text-white rounded-md"
+            <a
+              href={s.links.resume}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-4 py-2 bg-green-600 hover:bg-green-500 text-white rounded-md w-full sm:w-auto text-center"
             >
               Open in New Tab
             </a>
-            <button 
+            <button
               onClick={() => handleDownload(s.links.resume)}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-md"
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-md w-full sm:w-auto"
             >
               Download
             </button>
           </div>
-          
+
           {/* Resume Preview */}
           {(canPreview(s.links.resume) || isGoogleDriveUrl(s.links.resume)) && (
             <div className="mt-4">
@@ -508,7 +627,7 @@ export default function StudentDetails() {
                 <div className="border border-neutral-700 rounded-md overflow-hidden">
                   <iframe
                     src={isGoogleDriveUrl(s.links.resume) ? getDrivePreviewUrl(s.links.resume) : s.links.resume}
-                    className="w-full h-96 bg-white"
+                    className="w-full h-[65vh] sm:h-[80vh] bg-white"
                     title="Resume Preview"
                     onError={() => {
                       console.error('Failed to load resume preview')
@@ -516,7 +635,7 @@ export default function StudentDetails() {
                   />
                 </div>
                 <p className="text-xs text-neutral-400 mt-2">
-                  {isGoogleDriveUrl(s.links.resume) 
+                  {isGoogleDriveUrl(s.links.resume)
                     ? "Google Drive preview - make sure the file is set to 'Anyone with the link can view' for best results."
                     : "Note: Preview may not work for all file types or external URLs due to CORS restrictions."
                   }
@@ -530,131 +649,124 @@ export default function StudentDetails() {
   )
 
   const content = (
-    <div className="space-y-3 pt-1 sm:pt-2 m-auto">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-[#111] text-white px-3 sm:px-4 py-4 rounded-md gap-4">
-        <div className="font-bold text-3xl bg-gradient-to-r from-sky-400 to-purple-400 bg-clip-text text-transparent">Placement App</div>
-        <div className="flex items-center gap-2 sm:ml-auto w-full sm:w-auto">
-          <button 
-            onClick={() => navigate(-1)} 
-            className="px-3 py-1.5 sm:px-4 sm:py-2 bg-neutral-600 hover:bg-neutral-500 text-white rounded-md text-sm sm:text-base"
-          >
-            ← Back
-          </button>
-          <button 
-            onClick={handleDeleteStudent}
-            className="px-3 py-1.5 sm:px-4 sm:py-2 bg-red-600 hover:bg-red-500 text-white rounded-md text-sm sm:text-base"
-          >
-            Delete Student
-          </button>
-          <button 
-            onClick={handleLogout}
-            className="px-3 py-1.5 sm:px-4 sm:py-2 bg-gray-600 hover:bg-gray-500 text-white rounded-md text-sm sm:text-base"
-          >
-            Logout
-          </button>
+    <div className="max-w-7xl mx-auto px-2 sm:px-3 pt-4 sm:pt-6 pb-8">
+      <div className="space-y-3 pt-1 sm:pt-2 m-auto">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-[#111] text-white px-3 sm:px-4 py-4 rounded-md gap-3 sm:gap-4">
+          <div className="font-bold text-2xl sm:text-3xl bg-gradient-to-r from-sky-400 to-purple-400 bg-clip-text text-transparent">Placement App</div>
+          <div className="flex items-center gap-2 sm:ml-auto w-full sm:w-auto flex-wrap sm:flex-nowrap">
+            <button
+              onClick={() => navigate(-1)}
+              className={`${headerButtonBase} flex-1 sm:flex-none bg-transparent border-sky-700 text-sky-200 hover:bg-sky-900/30 hover:text-sky-100 focus:ring-sky-500`}
+            >
+              ← Back
+            </button>
+            <button
+              onClick={handleDeleteStudent}
+              className={`${headerButtonBase} flex-1 sm:flex-none bg-red-600 hover:bg-red-500 text-white focus:ring-red-500 text-xs sm:text-sm border-red-700/70`}
+            >
+              Delete Student
+            </button>
+            <button
+              onClick={handleLogout}
+              className={`${headerButtonBase} flex-1 sm:flex-none bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white border-transparent focus:ring-purple-500`}
+            >
+              Logout
+            </button>
+          </div>
+        </div>
+
+        <div className="flex flex-col lg:flex-row gap-3">
+          <nav className="w-full lg:w-56 bg-[#202020] rounded-md p-2 sticky top-2 self-start lg:max-h-[calc(100vh-1rem)] lg:overflow-y-auto overflow-visible z-10">
+            <ul className="flex lg:flex-col space-x-2 lg:space-x-0 lg:space-y-1 overflow-x-auto lg:overflow-visible overscroll-x-contain snap-x snap-mandatory -mx-2 px-2 -mb-2 pb-2">
+              <li>
+                <button
+                  onClick={() => setActiveSection('profile')}
+                  className={`block px-3 py-2 rounded w-full text-left whitespace-nowrap snap-start ${activeSection === 'profile'
+                      ? 'bg-[#333] text-white border-l-4 border-sky-600'
+                      : 'text-neutral-300 hover:text-white hover:bg-[#333]'
+                    }`}
+                >
+                  Profile
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => setActiveSection('semester')}
+                  className={`block px-3 py-2 rounded w-full text-left whitespace-nowrap snap-start ${activeSection === 'semester'
+                      ? 'bg-[#333] text-white border-l-4 border-sky-600'
+                      : 'text-neutral-300 hover:text-white hover:bg-[#333]'
+                    }`}
+                >
+                  Semester
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => setActiveSection('resume')}
+                  className={`block px-3 py-2 rounded w-full text-left whitespace-nowrap snap-start ${activeSection === 'resume'
+                      ? 'bg-[#333] text-white border-l-4 border-sky-600'
+                      : 'text-neutral-300 hover:text-white hover:bg-[#333]'
+                    }`}
+                >
+                  Resume
+                </button>
+              </li>
+            </ul>
+          </nav>
+
+          <section className="flex-1 min-w-0 bg-[#181818] rounded-md p-2 sm:p-4">
+            <div className="bg-[#242424] rounded-md p-2 sm:p-3 border border-neutral-800">
+              <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6 mb-4 sm:mb-6">
+                <div className="flex items-center gap-4 sm:gap-6">
+                  <img className="w-24 h-32 sm:w-32 sm:h-44 rounded-full object-cover border-4 border-sky-500" src={s?.profilePhoto || 'https://via.placeholder.com/160x120'} alt="Student image" />
+                  <div>
+                    <h1 className="text-xl sm:text-3xl font-bold">{s?.name || 'Loading...'}</h1>
+                    <div className="text-sm sm:text-lg text-neutral-400 mb-2 break-words">
+                      {s?.registerNumber} • {s?.department} • {(() => { const y = (s?.year || '').toString(); return y.toLowerCase() === 'fourth' ? 'Final Year' : y; })()}
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className={`px-3 py-1 rounded-full text-xs sm:text-sm font-medium ${s?.placement?.willingToPlace ? 'bg-green-600 text-white' : 'bg-red-600 text-white'}`}>
+                        {s?.placement?.willingToPlace ? '✓ Willing to Place' : '✗ Not Willing to Place'}
+                      </span>
+                      {s?.placement?.placementPreference && (
+                        <span className="px-3 py-1 rounded-full text-xs sm:text-sm bg-blue-600 text-white">
+                          {s.placement.placementPreference}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </header>
+
+              {activeSection === 'profile' && renderProfileSection()}
+              {activeSection === 'semester' && renderSemesterSection()}
+              {activeSection === 'resume' && renderResumeSection()}
+            </div>
+          </section>
         </div>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-3">
-        <nav className="w-full lg:w-56 bg-[#202020] rounded-md p-2 sticky top-2 self-start max-h-[calc(100vh-1rem)] overflow-auto z-10">
-          <ul className="flex lg:flex-col space-x-2 lg:space-x-0 lg:space-y-1">
-            <li>
-              <button 
-                onClick={() => setActiveSection('profile')}
-                className={`block px-3 py-2 rounded w-full text-left ${
-                  activeSection === 'profile' 
-                    ? 'bg-[#333] text-white border-l-4 border-sky-600' 
-                    : 'text-neutral-300 hover:text-white hover:bg-[#333]'
-                }`}
-              >
-                Profile
-              </button>
-            </li>
-            <li>
-              <button 
-                onClick={() => setActiveSection('semester')}
-                className={`block px-3 py-2 rounded w-full text-left ${
-                  activeSection === 'semester' 
-                    ? 'bg-[#333] text-white border-l-4 border-sky-600' 
-                    : 'text-neutral-300 hover:text-white hover:bg-[#333]'
-                }`}
-              >
-                Semester
-              </button>
-            </li>
-            <li>
-              <button 
-                onClick={() => setActiveSection('resume')}
-                className={`block px-3 py-2 rounded w-full text-left ${
-                  activeSection === 'resume' 
-                    ? 'bg-[#333] text-white border-l-4 border-sky-600' 
-                    : 'text-neutral-300 hover:text-white hover:bg-[#333]'
-                }`}
-              >
-                Resume
-              </button>
-            </li>
-          </ul>
-        </nav>
+      {showMessage && (
+        <div className={`fixed bottom-4 left-1/2 -translate-x-1/2 bg-${showMessage.type}-500 text-white px-4 py-2 rounded-md shadow-lg z-50`}>
+          {showMessage.text}
+        </div>
+      )}
 
-        <section className="flex-1 bg-[#181818] rounded-md p-3 mt-auto sm:p-4">
-          <div className="bg-[#242424] rounded-md p-3 border border-neutral-800">
-            <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 mb-6">
-              <div className="flex items-center gap-6">
-                <img className="w-28 h-36 sm:w-32 sm:h-44 rounded-full object-cover border-4 border-sky-500" src={s?.profilePhoto || 'https://via.placeholder.com/160x120'} alt="Student image" />
-                <div>
-                  <h1 className="text-lg sm:text-3xl font-bold">{s?.name || 'Loading...'}</h1>
-                  <div className="text-sm sm:text-lg text-neutral-400 mb-2">{s?.registerNumber} • {s?.department} • {(() => { const y=(s?.year||'').toString(); return y.toLowerCase()==='fourth' ? 'Final Year' : y; })()}</div>
-                  <div className="flex items-center gap-2">
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                      s?.placement?.willingToPlace 
-                        ? 'bg-green-600 text-white' 
-                        : 'bg-red-600 text-white'
-                    }`}>
-                      {s?.placement?.willingToPlace ? '✓ Willing to Place' : '✗ Not Willing to Place'}
-                    </span>
-                    {s?.placement?.placementPreference && (
-                      <span className="px-3 py-1 rounded-full text-sm bg-blue-600 text-white">
-                        {s.placement.placementPreference}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </header>
-
-            {activeSection === 'profile' && renderProfileSection()}
-            {activeSection === 'semester' && renderSemesterSection()}
-            {activeSection === 'resume' && renderResumeSection()}
-          </div>
-        </section>
-      </div>
-    </div>
-  )
-
-  return (
-    <div className="max-w-7xl mx-auto px-2 sm:px-3 pt-4 sm:pt-6 pb-8">
-      {content}
-      
-      {/* Delete Confirmation Modal */}
       {showDeleteModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-neutral-900 border border-neutral-700 rounded-lg p-4 sm:p-6 max-w-md w-full">
-            <h3 className="text-lg sm:text-xl font-semibold text-white mb-3 sm:mb-4">Confirm Delete</h3>
-            <p className="text-sm sm:text-base text-neutral-300 mb-4 sm:mb-6">
-              Are you sure you want to delete <span className="font-semibold text-white">{s?.name}</span> 
-              ({s?.registerNumber})? This action cannot be undone.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-[#1f1f1f] rounded-md p-6 text-white">
+            <h3 className="text-xl font-bold mb-4">Confirm Deletion</h3>
+            <p className="text-neutral-300 mb-6">Are you sure you want to delete this student? This action cannot be undone.</p>
+            <div className="flex justify-end gap-3">
               <button
                 onClick={cancelDelete}
-                className="px-4 py-2.5 sm:py-2 bg-neutral-600 hover:bg-neutral-500 text-white rounded-md text-sm sm:text-base order-2 sm:order-1"
+                className="px-4 py-2 bg-neutral-600 hover:bg-neutral-500 text-white rounded-md"
               >
                 Cancel
               </button>
               <button
                 onClick={confirmDelete}
-                className="px-4 py-2.5 sm:py-2 bg-red-600 hover:bg-red-500 text-white rounded-md text-sm sm:text-base order-1 sm:order-2"
+                className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-md"
               >
                 Delete
               </button>
@@ -662,30 +774,13 @@ export default function StudentDetails() {
           </div>
         </div>
       )}
-
-      {/* Success/Error Message */}
-      {showMessage && (
-        <div className="fixed top-4 left-4 right-4 sm:left-auto sm:right-4 sm:max-w-sm z-50">
-          <div className={`px-4 sm:px-6 py-3 sm:py-4 rounded-lg shadow-lg ${
-            showMessage.type === 'success' 
-              ? 'bg-green-600 text-white' 
-              : 'bg-red-600 text-white'
-          }`}>
-            <div className="flex items-center gap-2">
-              <span className="text-sm sm:text-base flex-1">{showMessage.text}</span>
-              <button
-                onClick={() => setShowMessage(null)}
-                className="ml-2 text-white hover:text-gray-200 text-lg font-bold"
-              >
-                ×
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
+
+  return (
+    <>
+      {content}
+      <Footer />
+    </>
+  )
 }
-
-
-

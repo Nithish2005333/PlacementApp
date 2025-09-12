@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
+import Footer from '../components/Footer'
 import api from '../lib/api'
 
 export default function Resume() {
@@ -189,5 +190,5 @@ export default function Resume() {
     </div>
   )
 
-  return <div className="max-w-7xl mx-auto px-2 sm:px-3 pt-4 sm:pt-6 pb-8 text-white bg-[#0a0a0a] min-h-screen">{content}</div>
+  return <div className="max-w-7xl mx-auto px-2 sm:px-3 pt-4 sm:pt-6 pb-8 text-white bg-[#0a0a0a] min-h-screen">{content}<Footer /></div>
 }

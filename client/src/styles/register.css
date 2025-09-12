@@ -8,19 +8,23 @@ body {
     display: block !important;
     align-items: initial !important;
     justify-content: initial !important;
+    padding: 0 !important;
+    margin: 15px !important;
 }
 
 /* Wrapper specific to the register page so we can control spacing without affecting login */
 .register-page {
     min-height: 100vh;
-    height: 100vh;
-    padding: 100px 20px 80px 20px;
+    height: auto; /* allow padding to create visible gaps */
+    padding: 8px 20px 100px 20px; /* minimal top spacing */
     /* increased top padding to prevent cutoff, keeping bottom as is */
     display: flex;
     align-items: center;
     justify-content: center;
     width: 100%;
-    margin-top: 100px;
+    margin-top: 0;
+    background: #111; /* match login page background */
+    box-sizing: border-box; /* include padding in height calculation */
     /* overflow: hidden; */
     /* box-sizing: border-box; */
 }
@@ -35,12 +39,21 @@ body {
 /* Make selects readable on dark theme and their dropdown list visible */
 .register-page select {
     width: 100%;
-    height: 44px;
-    padding: 10px 16px;
+    height: 40px; /* reduced height */
+    padding: 8px 12px; /* reduced padding */
     border-radius: 8px;
     border: 1.5px solid #414141;
-    background-color: #0f0f0f; /* closed control bg */
-    color: #ffffff; /* closed control text */
+    background-color: transparent; /* match inputs */
+    color: #fff; /* match input text */
+}
+
+/* When no value chosen (value="" and required), show placeholder color */
+.register-page select:invalid {
+    color: #9ca3af; /* muted like input placeholder */
+}
+
+.register-page select:hover {
+    border-color: #4b5563; /* subtle hover like inputs */
 }
 
 .register-page select:focus {
@@ -49,10 +62,21 @@ body {
     box-shadow: 0 0 0 3px rgba(232, 28, 255, 0.35);
 }
 
-/* Dropdown list styling (supported by most browsers) */
+/* Dropdown list styling (align with dark inputs across browsers) */
 .register-page select option {
-    color: #111111; /* dark text */
-    background-color: #ffffff; /* light background so it's readable */
+    color: #777272; /* option text */
+    background-color: #111111; /* dropdown menu background */
+}
+
+/* Ensure placeholder-like option is muted similar to input placeholder */
+.register-page select option[value=""] {
+    color: #9ca3af;
+}
+
+.register-page select option:checked,
+.register-page select option:hover {
+    background-color: #1f2937; /* slightly lighter on hover/selected */
+    color: #ffffff;
 }
 
 /* Form Container Styling - copied from legacy-login.css */
@@ -65,12 +89,14 @@ body {
     color: white;
     display: flex;
     flex-direction: column;
-    gap: 18px;
+    gap: 10px; /* remove gaps between stacked children to eliminate extra spacing */
     box-sizing: border-box;
     border-radius: 16px;
-    background-size: 200% 100%;
-    animation: gradient 5s ease infinite;
-    margin: 0 auto 200px auto;
+    background-size: 100% 100%;
+    background-position: center; /* avoid seam line on top */
+    background-repeat: no-repeat;
+    overflow: hidden;
+    margin: 0 auto; /* rely on wrapper padding for spacing */
     width: 100%;
     max-width: 480px;
     justify-content: center;
@@ -79,9 +105,43 @@ body {
 /* Title */
 .register-page .form-container h1 {
     text-align: center;
-    margin: 0 0 15px 0;
+    margin: 0 0 0 0; /* remove extra space above form */
     font-size: 25px;
     font-weight: 700;
+}
+
+/* Brand heading styles inside the form container */
+.register-page .form-container .brand-title {
+    text-align: center;
+    font-weight: 900;
+    font-size: 30px;
+    background: linear-gradient(90deg, #38bdf8, #a78bfa);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent; /* gradient text */
+    text-shadow: 0 0 8px rgba(56,189,248,.15);
+    margin: 0; /* eliminate margins to avoid collapsed gaps */
+    line-height: 1;
+    display: inline-block; /* prevent margin-collapsing quirks */
+}
+
+.register-page .form-container .brand-subtitle {
+    text-align: center;
+    color: #9ca3af;
+    font-size: 13px;
+    margin-top: -2px; /* tuck closer to title */
+    margin-bottom: 10px; /* minimal space before form title */
+    line-height: 1.1;
+}
+
+/* Decorative separator under brand heading */
+.register-page .form-container .brand-sep {
+    height: 3px;
+    width: 120px;
+    margin: 8px auto 14px auto;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #38bdf8, #a78bfa);
+    box-shadow: 0 0 12px rgba(56,189,248,.3);
 }
 
 /* Form Layout */
@@ -108,9 +168,9 @@ body {
 
 .register-page .form-group input {
     width: 100%;
-    height: 44px;
+    height: 40px; /* reduced height */
     margin: 0;
-    padding: 10px 16px;
+    padding: 8px 12px; /* reduced padding */
     border-radius: 8px;
     color: #fff;
     font-family: inherit;
@@ -141,12 +201,17 @@ body {
 
 .register-page .form-group a {
     margin-left: 3px;
-    color: blue;
-    transition: color 0.3s ease;
+    color: #a78bfa; /* base purple */
+    font-weight: 700;
+    text-decoration: none;
+    text-underline-offset: 2px;
+    transition: color 0.2s ease-out, text-decoration-color 0.2s ease-out, text-shadow 0.2s ease-out;
 }
 
 .register-page .form-group a:hover {
-    color: green;
+    color: #c084fc; /* brighter purple */
+    text-decoration: underline;
+    text-shadow: 0 0 6px rgba(192,132,252,.35);
 }
 
 /* Glow Button Wrapper */
@@ -218,25 +283,38 @@ body {
 /* Mobile responsive styles - using same values as PC */
 @media (max-width: 480px) {
     .register-page {
-        padding: 80px 20px 80px 20px;
+        height: auto;
+        padding: 24px 12px 64px 12px; /* smaller top/bottom and narrower sides */
         overflow-y: auto;
-        margin-top: 10px;
+        margin-top: 0;
+        background: #111;
+        box-sizing: border-box;
     }
     
     .register-page .form-container {
         width: 100%;
-        max-width: 480px;
-        margin: 200px auto 0 auto;
-        padding: 30px 50px 30px 50px;
-        gap: 18px;
+        max-width: 420px; /* slightly narrower for better fit */
+        margin: 0 auto; /* avoid pushing against edges */
+        padding: 16px 16px 16px 16px; /* reduce internal padding */
+        gap: 12px;
     }
     
     .register-page .form-container h1 {
-        margin: 0 0 15px 0;
-        font-size: 25px;
+        margin: 0 0 6px 0;
+        font-size: 22px; /* scale down title on small screens */
     }
     
     .register-page .form {
-        gap: 16px;
+        gap: 10px; /* tighter vertical rhythm */
     }
+
+    /* Smaller inputs on mobile */
+    .register-page .form-group input,
+    .register-page select {
+        height: 16px; /* extra-small box height */
+        padding: 2px 6px; /* slimmer padding */
+        border-radius: 5px;
+    }
+
+    /* Keep label text readable; no font-size reduction here */
 }

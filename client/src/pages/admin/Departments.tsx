@@ -1,4 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
+import Footer from '../../components/Footer'
 
 const depts = [
   { name: 'CSE', fullName: 'Computer Science & Engineering' },
@@ -31,7 +32,7 @@ export default function Departments() {
   // If no department selected, show department selection
   if (!department) {
     return (
-      <div className="max-w-4xl mx-auto p-4 sm:p-6">
+      <div className="max-w-4xl mx-auto p-4 sm:p-6" style={{ position: 'relative', paddingBottom: 48 }}>
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
           <div>
             <h1 className="font-bold text-2xl sm:text-3xl bg-gradient-to-r from-sky-400 to-purple-400 bg-clip-text text-transparent">Admin Dashboard</h1>
@@ -57,6 +58,7 @@ export default function Departments() {
             </Link>
           ))}
         </div>
+        <Footer fixed />
       </div>
     )
   }
@@ -64,8 +66,8 @@ export default function Departments() {
   // If department selected but no year, show year selection
   if (department && !year) {
     return (
-      <div className="max-w-4xl mx-auto p-4 sm:p-6">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
+      <div className="max-w-4xl mx-auto p-4 sm:p-6" style={{ position: 'relative', paddingBottom: 48 }}>
+        <div className="flex flex-row flex-wrap items-start sm:items-center justify-between mb-6 gap-4">
           <div>
             <nav className="text-xs sm:text-sm text-neutral-400 mb-2">
               <Link to="/admin/departments" className="hover:text-white">Dashboard</Link>
@@ -75,16 +77,16 @@ export default function Departments() {
             <h1 className="text-xl sm:text-2xl font-semibold">Select Year</h1>
             <p className="text-neutral-400 text-sm sm:text-base">Choose a year to view {department} department students</p>
           </div>
-          <div className="flex flex-col sm:flex-row gap-2 w-auto">
+          <div className="flex items-center gap-2 flex-nowrap">
             <button 
               onClick={() => navigate('/admin/departments')}
-              className="px-3 py-1.5 sm:px-4 sm:py-2 bg-gray-600 hover:bg-gray-500 text-white rounded-md w-auto text-sm sm:text-base"
+              className="inline-flex items-center justify-center px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base rounded-md border border-sky-700 text-sky-200 bg-transparent hover:bg-sky-900/30 hover:text-sky-100 shadow-sm active:scale-[.98] focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 focus:ring-offset-[#111] whitespace-nowrap"
             >
               ← Back
             </button>
             <button 
               onClick={handleLogout}
-              className="px-3 py-1.5 sm:px-4 sm:py-2 bg-red-600 hover:bg-red-500 text-white rounded-md w-auto text-sm sm:text-base"
+              className="inline-flex items-center justify-center px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base rounded-md bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white border border-white/10 shadow-sm active:scale-[.98] focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-[#111] whitespace-nowrap"
             >
               Logout
             </button>
@@ -102,6 +104,7 @@ export default function Departments() {
             </Link>
           ))}
         </div>
+        <Footer fixed />
       </div>
     )
   }

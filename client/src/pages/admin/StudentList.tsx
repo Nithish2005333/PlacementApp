@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
+import Footer from '../../components/Footer'
 import api from '../../lib/api'
 
 export default function StudentList() {
@@ -7,6 +8,7 @@ export default function StudentList() {
   const year = q.get('year') || ''
   const department = q.get('department') || ''
   const [rows, setRows] = useState<any[]>([])
+  const [query, setQuery] = useState<string>('')
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [studentToDelete, setStudentToDelete] = useState<{id: string, name: string} | null>(null)
   const [showMessage, setShowMessage] = useState<{type: 'success' | 'error', text: string} | null>(null)
@@ -80,7 +82,18 @@ export default function StudentList() {
     })()
   }, [year, department])
 
+  const normalized = (v: string) => (v || '').toString().toLowerCase().trim()
+  const qNorm = normalized(query)
+  const filteredRows = qNorm
+    ? rows.filter(s => {
+        const name = normalized(s.name)
+        const reg = normalized(s.registerNumber)
+        return name.includes(qNorm) || reg.includes(qNorm)
+      })
+    : rows
+
   return (
+    <>
     <div className="max-w-4xl mx-auto p-4 sm:p-6">
       {/* Header Section */}
       <div className="mb-6">
@@ -96,21 +109,41 @@ export default function StudentList() {
           <div className="flex-1 min-w-0">
             <h1 className="text-xl sm:text-2xl font-semibold text-white mb-1">{year} Year Students</h1>
             <p className="text-neutral-400 text-sm sm:text-base">{department} Department</p>
-            <p className="text-xs sm:text-sm text-neutral-500 mt-1">{rows.length} student{rows.length !== 1 ? 's' : ''} found</p>
+            <p className="text-xs sm:text-sm text-neutral-500 mt-1">{filteredRows.length} of {rows.length} student{rows.length !== 1 ? 's' : ''}</p>
           </div>
           <div className="flex gap-2 w-full sm:w-auto">
             <button 
               onClick={() => navigate(`/admin/departments?department=${encodeURIComponent(department)}`)}
-              className="flex-1 sm:flex-none px-4 py-2 bg-gray-600 hover:bg-gray-500 text-white rounded-md text-sm font-medium"
+              className="flex-1 sm:flex-none inline-flex items-center justify-center px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base rounded-md border border-sky-700 text-sky-200 bg-transparent hover:bg-sky-900/30 hover:text-sky-100 shadow-sm active:scale-[.98] focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 focus:ring-offset-[#111] whitespace-nowrap"
             >
               ← Back
             </button>
             <button 
               onClick={handleLogout}
-              className="flex-1 sm:flex-none px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-md text-sm font-medium"
+              className="flex-1 sm:flex-none inline-flex items-center justify-center px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base rounded-md bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white border border-white/10 shadow-sm active:scale-[.98] focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-[#111] whitespace-nowrap"
             >
               Logout
             </button>
+          </div>
+        </div>
+
+        {/* Search */}
+        <div className="mb-4">
+          <div className="flex items-center gap-2 mb-1">
+            <svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path fill="#93c5fd" d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+            <span className="font-semibold text-neutral-200">Search Students</span>
+          </div>
+          <div className="relative">
+            <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+              <svg width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path fill="#9ca3af" d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+            </span>
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search by name or reg. no (e.g., 710022104002 or Nithishwaran)"
+              aria-label="Search students by name or register number"
+              className="w-full pl-9 pr-3 py-2 rounded-md bg-neutral-900 border border-neutral-700 text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-sky-600 focus:border-sky-600"
+            />
           </div>
         </div>
       </div>
@@ -122,13 +155,13 @@ export default function StudentList() {
           <div>Actions</div>
         </div>
         
-        {rows.length === 0 ? (
+        {filteredRows.length === 0 ? (
           <div className="p-6 sm:p-8 text-center text-neutral-400">
             <div className="text-base sm:text-lg mb-2">No students found</div>
-            <div className="text-xs sm:text-sm">No students are registered for {year} year in {department} department</div>
+            <div className="text-xs sm:text-sm">Try clearing the search or check different filters</div>
           </div>
         ) : (
-          rows.map((s, index) => (
+          filteredRows.map((s, index) => (
             <div key={s._id}>
               {/* Desktop Layout */}
               <div className="hidden sm:grid grid-cols-3 p-4 hover:bg-neutral-800 transition-colors border-b border-neutral-800 last:border-b-0">
@@ -201,7 +234,7 @@ export default function StudentList() {
               </div>
               
               {/* Line separator between students (except for the last one) */}
-              {index < rows.length - 1 && (
+              {index < filteredRows.length - 1 && (
                 <div className="border-b border-neutral-700"></div>
               )}
             </div>
@@ -257,6 +290,8 @@ export default function StudentList() {
         </div>
       )}
     </div>
+    <Footer />
+    </>
   )
 }
 

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import api from '../lib/api'
 import '../styles/legacy-login.css'
+import Footer from '../components/Footer'
 
 export default function Login() {
   const navigate = useNavigate()
@@ -25,29 +26,53 @@ export default function Login() {
     }
   }
 
+  const linkBase: React.CSSProperties = { color: '#a78bfa', fontWeight: 700, textDecoration: 'none', textUnderlineOffset: 2, transition: 'color .15s ease, text-decoration-color .15s ease' } as any
+  const hoverLink = (e: React.MouseEvent<HTMLElement>) => { const el = e.currentTarget as HTMLElement; el.style.color = '#c084fc'; el.style.textDecoration = 'underline' }
+  const unhoverLink = (e: React.MouseEvent<HTMLElement>) => { const el = e.currentTarget as HTMLElement; el.style.color = '#a78bfa'; el.style.textDecoration = 'none' }
+
   return (
-    <div className="form-container">
+    <div className="form-container" style={{ position: 'relative', paddingBottom: 48 }}>
+      <div style={{ textAlign: 'center', margin: '4px 0 6px' }}>
+        <div className="brand-title">Placement App</div>
+        <div className="brand-subtitle">Welcome back</div>
+      </div>
       <h1>LOGIN</h1>
       <form className="form" onSubmit={submit}>
         {error && <div style={{ color: '#f66', textAlign: 'center', fontSize: 12 }}>{error}</div>}
         <div className="form-group">
           <label htmlFor="regNo">Register Number:</label>
-          <input id="regNo" name="regNo" placeholder="Enter your register number" required value={form.registerNumber} onChange={(e) => setForm({ ...form, registerNumber: e.target.value })} />
+          <input 
+            id="regNo" 
+            name="regNo" 
+            placeholder="Enter your register number" 
+            required 
+            inputMode="numeric"
+            pattern="^[0-9]{12}$"
+            minLength={12}
+            maxLength={12}
+            title="Enter exactly 12 digits"
+            value={form.registerNumber} 
+            onChange={(e) => {
+              const digitsOnly = e.target.value.replace(/\D/g, '').slice(0, 12)
+              setForm({ ...form, registerNumber: digitsOnly })
+            }} 
+          />
         </div>
         <div className="form-group">
           <label htmlFor="password">Password:</label>
           <input id="password" name="password" type="password" placeholder="Enter your password" required value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
         </div>
         <div className="form-group">
-          <p>New here? <Link to="/register"> Create an account</Link></p>
+          <p>New here? <Link to="/register" style={linkBase} onMouseEnter={hoverLink} onMouseLeave={unhoverLink}>Create an account</Link></p>
         </div>
         <div className="form-group" style={{ textAlign: 'center', fontSize: 14 }}>
-          <Link to="/admin/login">Admin Login</Link>
+          <Link to="/admin/login" style={linkBase} onMouseEnter={hoverLink} onMouseLeave={unhoverLink}>Admin Login</Link>
         </div>
         <div className="glow-btn-container">
           <button type="submit" disabled={loading}>{loading ? 'Logging in...' : 'Login'}</button>
         </div>
       </form>
+      <Footer fixed />
     </div>
   )
 }
