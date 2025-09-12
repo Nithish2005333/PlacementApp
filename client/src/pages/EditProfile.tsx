@@ -9,7 +9,10 @@ export default function EditProfile() {
   const [error, setError] = useState<string | null>(null)
   const [saved, setSaved] = useState(false)
   const [activeTab, setActiveTab] = useState<'personal' | 'academic' | 'placement' | 'skills' | 'other' | 'links'>('personal')
+  const [uploading, setUploading] = useState(false)
+  const [uploadError, setUploadError] = useState<string | null>(null)
   const navListRef = useRef<HTMLUListElement | null>(null)
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
 
   useEffect(() => {
     (async () => {
@@ -168,6 +171,62 @@ export default function EditProfile() {
         [`${type}Skills`]: currentSkills.filter((_: any, i: number) => i !== index)
       }
     })
+  }
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      setUploadError('Please select an image file')
+      return
+    }
+
+    // Validate file size (5MB limit)
+    if (file.size > 5 * 1024 * 1024) {
+      setUploadError('File size must be less than 5MB')
+      return
+    }
+
+    setUploading(true)
+    setUploadError(null)
+
+    try {
+      const formData = new FormData()
+      formData.append('profilePhoto', file)
+
+      const { data } = await api.post('/upload/profile-photo', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      })
+
+      setForm({ ...form, profilePhoto: data.profilePhoto })
+      
+      // Reset file input to allow selecting the same file again
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ''
+      }
+    } catch (error: any) {
+      setUploadError(error.response?.data?.error || 'Upload failed')
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  const removeProfilePhoto = async () => {
+    try {
+      await api.delete('/upload/profile-photo')
+      setForm({ ...form, profilePhoto: '' })
+      
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ''
+      }
+    } catch (error: any) {
+      setUploadError(error.response?.data?.error || 'Failed to remove photo')
+    }
   }
 
   return (
@@ -391,13 +450,105 @@ export default function EditProfile() {
                       </select>
                     </div>
         <div className="space-y-1">
-                      <label className="text-sm font-medium">Profile Photo URL</label>
-                      <input 
-                        type="url"
-                        className="w-full px-3 py-2 rounded-md bg-neutral-800 border border-neutral-700 focus:outline-none focus:border-sky-500" 
-                        value={form.profilePhoto || ''} 
-                        onChange={(e) => setForm({ ...form, profilePhoto: e.target.value })}
-                      />
+                      <label className="text-sm font-medium">Profile Photo</label>
+                      <div className="space-y-3">
+                        {/* Current photo preview */}
+                        {form.profilePhoto && (
+                          <div className="flex items-center gap-3">
+                            <img 
+                              src={form.profilePhoto} 
+                              alt="Profile preview" 
+                              className="w-16 h-16 rounded-full object-cover border-2 border-neutral-600"
+                            />
+                            <button
+                              type="button"
+                              onClick={removeProfilePhoto}
+                              className="flex items-center space-x-1 px-3 py-1.5 text-xs bg-red-600/90 hover:bg-red-700 text-white rounded-md transition-all duration-200 hover:shadow-lg hover:shadow-red-500/25"
+                            >
+                              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                              </svg>
+                              <span>Remove</span>
+                            </button>
+                          </div>
+                        )}
+                        
+                        {/* Upload input */}
+                        <div className="space-y-2">
+                          <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageUpload}
+                            disabled={uploading || !!form.profilePhoto}
+                            className="hidden"
+                            id="profile-photo-upload"
+                          />
+                          <label
+                            htmlFor="profile-photo-upload"
+                            className={`group relative flex items-center justify-center w-full px-4 py-3 rounded-lg border-2 border-dashed transition-all duration-200 ${
+                              uploading || !!form.profilePhoto
+                                ? 'border-neutral-600 bg-neutral-800/50 text-neutral-500 cursor-not-allowed' 
+                                : 'border-neutral-500 bg-neutral-800/30 text-neutral-300 hover:border-sky-400 hover:bg-sky-900/20 hover:text-sky-300 cursor-pointer'
+                            }`}
+                          >
+                            <div className="flex items-center space-x-2">
+                              <svg 
+                                className={`w-5 h-5 transition-colors ${
+                                  uploading || !!form.profilePhoto 
+                                    ? 'text-neutral-500' 
+                                    : 'text-neutral-400 group-hover:text-sky-400'
+                                }`} 
+                                fill="none" 
+                                stroke="currentColor" 
+                                viewBox="0 0 24 24"
+                              >
+                                <path 
+                                  strokeLinecap="round" 
+                                  strokeLinejoin="round" 
+                                  strokeWidth={2} 
+                                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" 
+                                />
+                              </svg>
+                              <span className="text-sm font-medium">
+                                {uploading 
+                                  ? 'Uploading...' 
+                                  : form.profilePhoto 
+                                    ? 'Remove current image to upload new one' 
+                                    : 'Choose New Image'
+                                }
+                              </span>
+                            </div>
+                          </label>
+                        </div>
+                        
+                        {/* Upload error */}
+                        {uploadError && (
+                          <div className="text-red-400 text-sm p-2 bg-red-900/20 rounded">
+                            {uploadError}
+                          </div>
+                        )}
+                        
+                        <div className="text-xs text-neutral-400 bg-neutral-800/30 rounded-md p-2 border border-neutral-700/50">
+                          {form.profilePhoto 
+                            ? (
+                              <div className="flex items-center space-x-1">
+                                <svg className="w-3 h-3 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                                </svg>
+                                <span>Remove current image first to upload a new one</span>
+                              </div>
+                            ) : (
+                              <div className="flex items-center space-x-1">
+                                <svg className="w-3 h-3 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span>Supported formats: JPG, PNG, GIF, WebP. Max size: 5MB</span>
+                              </div>
+                            )
+                          }
+                        </div>
+                      </div>
         </div>
                     <div className="sm:col-span-2 space-y-1">
                       <label className="text-sm font-medium">Address</label>

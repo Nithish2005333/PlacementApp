@@ -1,0 +1,7 @@
+email:aurcc2026@gmail.com
+password:AnnaUniversity#1
+
+mongodb+srv://placement_user:QuXJcxrr0BiUP2OV@cluster0.yqzgkin.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+
+
+username:"aurccadmin"password:"placementaurcc"

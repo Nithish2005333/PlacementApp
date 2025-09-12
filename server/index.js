@@ -11,6 +11,7 @@ const { ensureDefaultAdmin } = require('./lib/seed');
 const authRoutes = require('./routes/auth');
 const studentRoutes = require('./routes/students');
 const adminRoutes = require('./routes/admin');
+const uploadRoutes = require('./routes/upload');
 
 const app = express();
 
@@ -27,6 +28,7 @@ app.get('/health', (_req, res) => res.json({ ok: true }));
 app.use('/api/auth', authRoutes);
 app.use('/api/students', studentRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/upload', uploadRoutes);
 
 // Serve client build (Render: combined deploy)
 const clientDist = path.join(__dirname, '..', 'client', 'dist');

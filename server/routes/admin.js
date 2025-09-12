@@ -1,6 +1,7 @@
 const express = require('express');
 const { auth } = require('../middleware/auth');
 const Student = require('../models/Student');
+const { cloudinary } = require('../lib/cloudinary');
 
 const router = express.Router();
 
@@ -45,12 +46,43 @@ router.delete('/students/:id', auth('admin'), async (req, res) => {
     if (!student) {
       return res.status(404).json({ error: 'Student not found' });
     }
+    // Attempt to delete profile photo from Cloudinary if present
+    if (student.profilePhotoPublicId) {
+      try {
+        await cloudinary.uploader.destroy(student.profilePhotoPublicId);
+      } catch (e) {
+        console.warn('Cloudinary destroy failed for admin student delete (continuing):', e?.message || e);
+      }
+    }
     
     console.log('Deleted student:', student.registerNumber);
     res.json({ message: 'Student deleted successfully' });
   } catch (error) {
     console.error('Error deleting student:', error);
     res.status(500).json({ error: 'Failed to delete student' });
+  }
+});
+
+// Admin: remove only the student's profile photo
+router.delete('/students/:id/profile-photo', auth('admin'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const student = await Student.findById(id);
+    if (!student) return res.status(404).json({ error: 'Student not found' });
+
+    if (student.profilePhotoPublicId) {
+      try {
+        await cloudinary.uploader.destroy(student.profilePhotoPublicId);
+      } catch (e) {
+        console.warn('Cloudinary destroy failed (admin photo delete):', e?.message || e);
+      }
+    }
+
+    await Student.findByIdAndUpdate(id, { $unset: { profilePhoto: 1, profilePhotoPublicId: 1 } });
+    res.json({ message: 'Student profile photo removed' });
+  } catch (error) {
+    console.error('Admin remove profile photo error:', error);
+    res.status(500).json({ error: 'Failed to remove profile photo' });
   }
 });
 

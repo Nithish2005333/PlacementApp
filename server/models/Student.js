@@ -58,6 +58,8 @@ const StudentSchema = new mongoose.Schema({
   year: { type: String, required: true },
 
   profilePhoto: String,
+  // Cloudinary public id for the profile photo (used for deletion)
+  profilePhotoPublicId: String,
   dob: Date,
   age: Number,
   gender: String,
