@@ -60,7 +60,10 @@ export default function Profile() {
                 <img className="w-28 h-36 sm:w-32 sm:h-44 rounded-full object-cover border-4 border-sky-500" src={student?.profilePhoto || 'https://via.placeholder.com/160x120'} alt="Student image" />
                 <div>
                   <h1 className="text-lg sm:text-3xl font-bold">{error ? 'Failed to load profile' : (student?.name || 'Loading...')}</h1>
-                  <div className="text-sm sm:text-lg text-neutral-400 mb-2">{student?.registerNumber} • {student?.department} • {(() => { const y = (student?.year || '').toString(); return y.toLowerCase() === 'fourth' ? 'Final Year' : y; })()}</div>
+                  <div className="text-sm sm:text-lg text-neutral-400 mb-2">
+                    <span className="inline-block">{student?.registerNumber} • </span>
+                    <span className="inline-block whitespace-nowrap">{student?.department} • {(() => { const y = (student?.year || '').toString(); return y.toLowerCase() === 'fourth' ? 'Final Year' : y; })()}</span>
+                  </div>
                   <div className="flex items-center gap-2">
                     <span className={`px-3 py-1 rounded-full text-sm font-medium ${student?.placement?.willingToPlace
                       ? 'bg-green-600 text-white'
@@ -91,7 +94,7 @@ export default function Profile() {
                     <tbody className="divide-y divide-neutral-800">
                       <tr><td className="py-1 pr-2 text-neutral-400 whitespace-nowrap">Name</td><td className="py-1 text-neutral-200 break-words break-all">{student?.name ?? '-'}</td></tr>
                       <tr><td className="py-1 pr-2 text-neutral-400 whitespace-nowrap">Register Number</td><td className="py-1 text-neutral-200 break-words break-all">{student?.registerNumber ?? '-'}</td></tr>
-                      <tr><td className="py-1 pr-2 text-neutral-400 whitespace-nowrap">College</td><td className="py-1 text-neutral-200 break-words break-all">{student?.collegeName || 'Anna University regional campus, Coimbatore'}</td></tr>
+                      <tr><td className="py-1 pr-2 text-neutral-400 whitespace-nowrap">College</td><td className="py-1 text-neutral-200 break-words">{student?.collegeName || 'Anna University regional campus, Coimbatore'}</td></tr>
                       <tr><td className="py-1 pr-2 text-neutral-400 whitespace-nowrap">Department</td><td className="py-1 text-neutral-200 break-words break-all">{student?.department ?? '-'}</td></tr>
                       <tr><td className="py-1 pr-2 text-neutral-400 whitespace-nowrap">Year</td><td className="py-1 text-neutral-200 break-words break-all">{(() => { const y = (student?.year || '').toString(); return y.toLowerCase() === 'fourth' ? 'Final Year' : y; })()}</td></tr>
                       <tr><td className="py-1 pr-2 text-neutral-400 whitespace-nowrap">Current Semester</td><td className="py-1 text-neutral-200 break-words break-all">{(() => { const cs = (student?.academic?.currentSemester ?? student?.currentSemester); return (cs === undefined || cs === null || cs === 0 || cs === '') ? '-' : cs; })()}</td></tr>
@@ -99,7 +102,7 @@ export default function Profile() {
                       <tr><td className="py-1 pr-2 text-neutral-400 whitespace-nowrap">Phone</td><td className="py-1 text-neutral-200 break-words break-all">{student?.phone ?? '-'}</td></tr>
                       <tr><td className="py-1 pr-2 text-neutral-400 whitespace-nowrap">Gender</td><td className="py-1 text-neutral-200 break-words break-all">{student?.gender ?? '-'}</td></tr>
                       <tr><td className="py-1 pr-2 text-neutral-400 whitespace-nowrap">Birth Date</td><td className="py-1 text-neutral-200 break-words break-all">{student?.dob ? (() => { const dt = new Date(student.dob); if (isNaN(dt.getTime())) return '-'; const dd = String(dt.getDate()).padStart(2, '0'); const mm = String(dt.getMonth() + 1).padStart(2, '0'); const yyyy = dt.getFullYear(); return `${dd}-${mm}-${yyyy}` })() : '-'}</td></tr>
-                      <tr><td className="py-1 pr-2 text-neutral-400 whitespace-nowrap">Address</td><td className="py-1 text-neutral-200 break-words break-all">{student?.address ?? '-'}</td></tr>
+                      <tr><td className="py-1 pr-2 text-neutral-400 whitespace-nowrap">Address</td><td className="py-1 text-neutral-200 break-words">{student?.address ?? '-'}</td></tr>
                     </tbody>
                   </table>
                 </div>

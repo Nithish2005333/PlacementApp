@@ -3,6 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom'
 import api from '../../lib/api'
 import Footer from '../../components/Footer'
 import LogoutSuccessPopup from '../../components/LogoutSuccessPopup'
+import SuccessPopup from '../../components/SuccessPopup'
+import ErrorPopup from '../../components/ErrorPopup'
 
 export default function StudentDetails() {
   const { id } = useParams()
@@ -11,8 +13,11 @@ export default function StudentDetails() {
   const [activeSection, setActiveSection] = useState<'profile' | 'semester' | 'resume'>('profile')
   const [selectedSemester, setSelectedSemester] = useState<number>(1)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
-  const [showMessage, setShowMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false)
+  const [showErrorPopup, setShowErrorPopup] = useState(false)
+  const [popupMessage, setPopupMessage] = useState('')
   const [showLogoutPopup, setShowLogoutPopup] = useState(false)
+  const [copiedLink, setCopiedLink] = useState<string | null>(null)
 
   // Consistent styling for header action buttons
   const headerButtonBase = 'inline-flex items-center justify-center px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base rounded-md border border-white/10 shadow-sm transition-colors active:scale-[.98] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#111]';
@@ -28,6 +33,26 @@ export default function StudentDetails() {
     navigate('/admin/login', { replace: true })
   }
 
+  const showSuccessMessage = (message: string) => {
+    setPopupMessage(message)
+    setShowSuccessPopup(true)
+  }
+
+  const showErrorMessage = (message: string) => {
+    setPopupMessage(message)
+    setShowErrorPopup(true)
+  }
+
+  const handleCloseSuccessPopup = () => {
+    setShowSuccessPopup(false)
+    setPopupMessage('')
+  }
+
+  const handleCloseErrorPopup = () => {
+    setShowErrorPopup(false)
+    setPopupMessage('')
+  }
+
   const handleDeleteStudent = () => {
     setShowDeleteModal(true)
   }
@@ -37,7 +62,7 @@ export default function StudentDetails() {
 
     try {
       await api.delete(`/admin/students/${id}`)
-      setShowMessage({ type: 'success', text: 'Student deleted successfully' })
+      showSuccessMessage('Student deleted successfully')
       setShowDeleteModal(false)
 
       // Navigate back after showing success message
@@ -46,16 +71,37 @@ export default function StudentDetails() {
       }, 1500)
     } catch (error) {
       console.error('Failed to delete student:', error)
-      setShowMessage({ type: 'error', text: 'Failed to delete student' })
+      showErrorMessage('Failed to delete student')
       setShowDeleteModal(false)
-
-      // Auto-hide error message after 5 seconds
-      setTimeout(() => setShowMessage(null), 5000)
     }
   }
 
   const cancelDelete = () => {
     setShowDeleteModal(false)
+  }
+
+  const copyToClipboard = async (text: string, linkType: string) => {
+    try {
+      await navigator.clipboard.writeText(text)
+      setCopiedLink(linkType)
+      setTimeout(() => setCopiedLink(null), 2000) // Clear after 2 seconds
+    } catch (err) {
+      console.error('Failed to copy text: ', err)
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea')
+      textArea.value = text
+      document.body.appendChild(textArea)
+      textArea.focus()
+      textArea.select()
+      try {
+        document.execCommand('copy')
+        setCopiedLink(linkType)
+        setTimeout(() => setCopiedLink(null), 2000)
+      } catch (fallbackErr) {
+        console.error('Fallback copy failed: ', fallbackErr)
+      }
+      document.body.removeChild(textArea)
+    }
   }
 
   useEffect(() => {
@@ -85,7 +131,7 @@ export default function StudentDetails() {
             <tbody className="divide-y divide-neutral-800">
               <tr><td className="py-1 pr-2 text-neutral-400 whitespace-nowrap">Name</td><td className="py-1 text-neutral-200 break-words break-all">{s?.name ?? '-'}</td></tr>
               <tr><td className="py-1 pr-2 text-neutral-400 whitespace-nowrap">Register Number</td><td className="py-1 text-neutral-200 break-words break-all">{s?.registerNumber ?? '-'}</td></tr>
-              <tr><td className="py-1 pr-2 text-neutral-400 whitespace-nowrap">College</td><td className="py-1 text-neutral-200 break-words break-all">{s?.collegeName || 'Anna University regional campus, Coimbatore'}</td></tr>
+              <tr><td className="py-1 pr-2 text-neutral-400 whitespace-nowrap">College</td><td className="py-1 text-neutral-200 break-words">{s?.collegeName || 'Anna University regional campus, Coimbatore'}</td></tr>
               <tr><td className="py-1 pr-2 text-neutral-400 whitespace-nowrap">Department</td><td className="py-1 text-neutral-200 break-words break-all">{s?.department ?? '-'}</td></tr>
               <tr><td className="py-1 pr-2 text-neutral-400 whitespace-nowrap">Year</td><td className="py-1 text-neutral-200 break-words break-all">{(() => { const y = (s?.year || '').toString(); return y.toLowerCase() === 'fourth' ? 'Final Year' : y; })()}</td></tr>
               <tr><td className="py-1 pr-2 text-neutral-400 whitespace-nowrap">Current Semester</td><td className="py-1 text-neutral-200 break-words break-all">{(() => { const cs = (s?.academic?.currentSemester ?? s?.currentSemester); return (cs === undefined || cs === null || cs === 0 || cs === '') ? '-' : cs; })()}</td></tr>
@@ -93,7 +139,7 @@ export default function StudentDetails() {
               <tr><td className="py-1 pr-2 text-neutral-400 whitespace-nowrap">Phone</td><td className="py-1 text-neutral-200 break-words break-all">{s?.phone ?? '-'}</td></tr>
               <tr><td className="py-1 pr-2 text-neutral-400 whitespace-nowrap">Gender</td><td className="py-1 text-neutral-200 break-words break-all">{s?.gender ?? '-'}</td></tr>
               <tr><td className="py-1 pr-2 text-neutral-400 whitespace-nowrap">Birth Date</td><td className="py-1 text-neutral-200 break-words break-all">{s?.dob ? (() => { const dt = new Date(s.dob); if (isNaN(dt.getTime())) return '-'; const dd = String(dt.getDate()).padStart(2, '0'); const mm = String(dt.getMonth() + 1).padStart(2, '0'); const yyyy = dt.getFullYear(); return `${dd}-${mm}-${yyyy}` })() : '-'}</td></tr>
-              <tr><td className="py-1 pr-2 text-neutral-400 whitespace-nowrap">Address</td><td className="py-1 text-neutral-200 break-words break-all">{s?.address ?? '-'}</td></tr>
+              <tr><td className="py-1 pr-2 text-neutral-400 whitespace-nowrap">Address</td><td className="py-1 text-neutral-200 break-words">{s?.address ?? '-'}</td></tr>
             </tbody>
           </table>
         </div>
@@ -339,6 +385,149 @@ export default function StudentDetails() {
             </a>
           )}
 
+        </div>
+
+        {/* Link URLs with Copy Functionality */}
+        <div className="mt-6 space-y-3">
+          <h3 className="text-lg font-semibold text-neutral-200 mb-3">Link URLs</h3>
+          
+          {s?.links?.resume && (
+            <div className="bg-[#191919] rounded-md p-3 border border-neutral-700">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium text-cyan-400 mb-1">Resume</div>
+                  <div className="text-neutral-300 text-sm break-all font-mono bg-neutral-800 px-2 py-1 rounded border">
+                    {s.links.resume}
+                  </div>
+                </div>
+                <button
+                  onClick={() => copyToClipboard(s.links.resume, 'resume')}
+                  className="flex items-center justify-center gap-1 px-3 py-2 bg-neutral-700 hover:bg-neutral-600 text-white rounded-md text-sm transition-colors w-full sm:w-auto min-w-[100px]"
+                >
+                  {copiedLink === 'resume' ? (
+                    <>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                      </svg>
+                      Copied!
+                    </>
+                  ) : (
+                    <>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                      </svg>
+                      Copy
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {s?.links?.portfolio && (
+            <div className="bg-[#191919] rounded-md p-3 border border-neutral-700">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium text-cyan-400 mb-1">Portfolio</div>
+                  <div className="text-neutral-300 text-sm break-all font-mono bg-neutral-800 px-2 py-1 rounded border">
+                    {s.links.portfolio}
+                  </div>
+                </div>
+                <button
+                  onClick={() => copyToClipboard(s.links.portfolio, 'portfolio')}
+                  className="flex items-center justify-center gap-1 px-3 py-2 bg-neutral-700 hover:bg-neutral-600 text-white rounded-md text-sm transition-colors w-full sm:w-auto min-w-[100px]"
+                >
+                  {copiedLink === 'portfolio' ? (
+                    <>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                      </svg>
+                      Copied!
+                    </>
+                  ) : (
+                    <>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                      </svg>
+                      Copy
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {s?.links?.linkedin && (
+            <div className="bg-[#191919] rounded-md p-3 border border-neutral-700">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium text-cyan-400 mb-1">LinkedIn</div>
+                  <div className="text-neutral-300 text-sm break-all font-mono bg-neutral-800 px-2 py-1 rounded border">
+                    {s.links.linkedin}
+                  </div>
+                </div>
+                <button
+                  onClick={() => copyToClipboard(s.links.linkedin, 'linkedin')}
+                  className="flex items-center justify-center gap-1 px-3 py-2 bg-neutral-700 hover:bg-neutral-600 text-white rounded-md text-sm transition-colors w-full sm:w-auto min-w-[100px]"
+                >
+                  {copiedLink === 'linkedin' ? (
+                    <>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                      </svg>
+                      Copied!
+                    </>
+                  ) : (
+                    <>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                      </svg>
+                      Copy
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {s?.links?.github && (
+            <div className="bg-[#191919] rounded-md p-3 border border-neutral-700">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium text-cyan-400 mb-1">GitHub</div>
+                  <div className="text-neutral-300 text-sm break-all font-mono bg-neutral-800 px-2 py-1 rounded border">
+                    {s.links.github}
+                  </div>
+                </div>
+                <button
+                  onClick={() => copyToClipboard(s.links.github, 'github')}
+                  className="flex items-center justify-center gap-1 px-3 py-2 bg-neutral-700 hover:bg-neutral-600 text-white rounded-md text-sm transition-colors w-full sm:w-auto min-w-[100px]"
+                >
+                  {copiedLink === 'github' ? (
+                    <>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                      </svg>
+                      Copied!
+                    </>
+                  ) : (
+                    <>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                      </svg>
+                      Copy
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {!s?.links?.resume && !s?.links?.portfolio && !s?.links?.linkedin && !s?.links?.github && (
+            <div className="text-center py-6 text-neutral-400">
+              No links available
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -656,8 +845,9 @@ export default function StudentDetails() {
   )
 
   const content = (
-    <div className="min-h-screen">
-      <div className="max-w-7xl mx-auto px-2 sm:px-3 pt-4 sm:pt-6 pb-20">
+    <div className="min-h-screen flex flex-col">
+      <div className="flex-1">
+        <div className="max-w-7xl mx-auto px-2 sm:px-3 pt-4 sm:pt-6 pb-20">
       <div className="space-y-3 pt-1 sm:pt-2 m-auto">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-[#111] text-white px-3 sm:px-4 py-4 rounded-md gap-3 sm:gap-4">
           <div className="font-bold text-2xl sm:text-3xl bg-gradient-to-r from-sky-400 to-purple-400 bg-clip-text text-transparent">Placement App</div>
@@ -729,8 +919,9 @@ export default function StudentDetails() {
                   <img className="w-24 h-32 sm:w-32 sm:h-44 rounded-full object-cover border-4 border-sky-500" src={s?.profilePhoto || 'https://via.placeholder.com/160x120'} alt="Student image" />
                   <div>
                     <h1 className="text-xl sm:text-3xl font-bold">{s?.name || 'Loading...'}</h1>
-                    <div className="text-sm sm:text-lg text-neutral-400 mb-2 break-words">
-                      {s?.registerNumber} • {s?.department} • {(() => { const y = (s?.year || '').toString(); return y.toLowerCase() === 'fourth' ? 'Final Year' : y; })()}
+                    <div className="text-sm sm:text-lg text-neutral-400 mb-2">
+                      <span className="inline-block">{s?.registerNumber} • </span>
+                      <span className="inline-block whitespace-nowrap">{s?.department} • {(() => { const y = (s?.year || '').toString(); return y.toLowerCase() === 'fourth' ? 'Final Year' : y; })()}</span>
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
                       <span className={`px-3 py-1 rounded-full text-xs sm:text-sm font-medium ${s?.placement?.willingToPlace ? 'bg-green-600 text-white' : 'bg-red-600 text-white'}`}>
@@ -754,11 +945,6 @@ export default function StudentDetails() {
         </div>
       </div>
 
-      {showMessage && (
-        <div className={`fixed bottom-4 left-1/2 -translate-x-1/2 bg-${showMessage.type}-500 text-white px-4 py-2 rounded-md shadow-lg z-50`}>
-          {showMessage.text}
-        </div>
-      )}
 
       {showDeleteModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -782,8 +968,9 @@ export default function StudentDetails() {
           </div>
         </div>
       )}
+        </div>
       </div>
-      <Footer fixed />
+      <Footer />
     </div>
   )
 
@@ -791,6 +978,8 @@ export default function StudentDetails() {
     <>
       {content}
       <LogoutSuccessPopup show={showLogoutPopup} onClose={handleCloseLogoutPopup} />
+      <SuccessPopup show={showSuccessPopup} onClose={handleCloseSuccessPopup} message={popupMessage} />
+      <ErrorPopup show={showErrorPopup} onClose={handleCloseErrorPopup} message={popupMessage} />
     </>
   )
 }

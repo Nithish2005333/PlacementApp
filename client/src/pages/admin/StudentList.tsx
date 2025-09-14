@@ -3,6 +3,9 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import Footer from '../../components/Footer'
 import LogoutSuccessPopup from '../../components/LogoutSuccessPopup'
 import FilterSuccessPopup from '../../components/FilterSuccessPopup'
+import SuccessPopup from '../../components/SuccessPopup'
+import ErrorPopup from '../../components/ErrorPopup'
+import PasswordInput from '../../components/PasswordInput'
 import api from '../../lib/api'
 
 export default function StudentList() {
@@ -13,7 +16,9 @@ export default function StudentList() {
   const [query, setQuery] = useState<string>('')
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [studentToDelete, setStudentToDelete] = useState<{id: string, name: string} | null>(null)
-  const [showMessage, setShowMessage] = useState<{type: 'success' | 'error', text: string} | null>(null)
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false)
+  const [showErrorPopup, setShowErrorPopup] = useState(false)
+  const [popupMessage, setPopupMessage] = useState('')
   const [showLogoutPopup, setShowLogoutPopup] = useState(false)
   const [showFilterSuccessPopup, setShowFilterSuccessPopup] = useState(false)
   const [showFilterModal, setShowFilterModal] = useState(false)
@@ -62,6 +67,26 @@ export default function StudentList() {
     setShowFilterSuccessPopup(false)
   }
 
+  const showSuccessMessage = (message: string) => {
+    setPopupMessage(message)
+    setShowSuccessPopup(true)
+  }
+
+  const showErrorMessage = (message: string) => {
+    setPopupMessage(message)
+    setShowErrorPopup(true)
+  }
+
+  const handleCloseSuccessPopup = () => {
+    setShowSuccessPopup(false)
+    setPopupMessage('')
+  }
+
+  const handleCloseErrorPopup = () => {
+    setShowErrorPopup(false)
+    setPopupMessage('')
+  }
+
   const handleDeleteStudent = (studentId: string, studentName: string) => {
     setStudentToDelete({ id: studentId, name: studentName })
     setShowDeleteModal(true)
@@ -75,20 +100,14 @@ export default function StudentList() {
       // Refresh the student list
       const { data } = await api.get('/admin/students', { params: { year, department } })
       setRows(data)
-      setShowMessage({ type: 'success', text: 'Student deleted successfully' })
+      showSuccessMessage(`Student ${studentToDelete.name} deleted successfully`)
       setShowDeleteModal(false)
       setStudentToDelete(null)
-      
-      // Auto-hide success message after 3 seconds
-      setTimeout(() => setShowMessage(null), 3000)
     } catch (error) {
       console.error('Failed to delete student:', error)
-      setShowMessage({ type: 'error', text: 'Failed to delete student' })
+      showErrorMessage('Failed to delete student')
       setShowDeleteModal(false)
       setStudentToDelete(null)
-      
-      // Auto-hide error message after 5 seconds
-      setTimeout(() => setShowMessage(null), 5000)
     }
   }
 
@@ -157,11 +176,7 @@ export default function StudentList() {
       setQuery('')
     } catch (error) {
       console.error('Failed to apply filters:', error)
-      setShowMessage({ type: 'error', text: 'Failed to apply filters' })
-      // Auto-hide error message after 1 second
-      setTimeout(() => {
-        setShowMessage(null)
-      }, 1000)
+      showErrorMessage('Failed to apply filters')
     }
   }
 
@@ -230,7 +245,7 @@ export default function StudentList() {
 
   const verifyAdminAndDelete = async () => {
     if (!adminCredentials.username || !adminCredentials.password) {
-      setShowMessage({ type: 'error', text: 'Please enter both username and password' })
+      showErrorMessage('Please enter both username and password')
       return
     }
 
@@ -243,7 +258,7 @@ export default function StudentList() {
       })
 
       if (!verifyResponse.data.valid) {
-        setShowMessage({ type: 'error', text: 'Invalid admin credentials' })
+        showErrorMessage('Invalid admin credentials')
         setIsDeleting(false)
         return
       }
@@ -264,17 +279,12 @@ export default function StudentList() {
       setRows(sortedData)
       setSelectedStudents(new Set())
       setIsDeleteMode(false)
-      setShowMessage({ type: 'success', text: `Successfully deleted ${studentIds.length} student(s)` })
+      showSuccessMessage(`Successfully deleted ${studentIds.length} student(s)`)
       setShowAdminVerificationModal(false)
       setAdminCredentials({ username: '', password: '' })
-      
-      // Auto-hide success message after 3 seconds
-      setTimeout(() => setShowMessage(null), 3000)
     } catch (error) {
       console.error('Failed to delete students:', error)
-      setShowMessage({ type: 'error', text: 'Failed to delete students. Please check credentials and try again.' })
-      // Auto-hide error message after 5 seconds
-      setTimeout(() => setShowMessage(null), 5000)
+      showErrorMessage('Failed to delete students. Please check credentials and try again.')
     } finally {
       setIsDeleting(false)
     }
@@ -662,31 +672,13 @@ export default function StudentList() {
         </div>
       )}
 
-      {/* Success/Error Message */}
-      {showMessage && (
-        <div className="fixed top-4 left-4 right-4 sm:left-auto sm:right-4 sm:max-w-sm z-50">
-          <div className={`px-4 sm:px-6 py-3 sm:py-4 rounded-lg shadow-lg ${
-            showMessage.type === 'success' 
-              ? 'bg-green-600 text-white' 
-              : 'bg-red-600 text-white'
-          }`}>
-            <div className="flex items-center gap-2">
-              <span className="text-sm sm:text-base flex-1">{showMessage.text}</span>
-              <button
-                onClick={() => setShowMessage(null)}
-                className="ml-2 text-white hover:text-gray-200 text-lg font-bold"
-              >
-                ×
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
         </div>
       </div>
       <Footer />
       <LogoutSuccessPopup show={showLogoutPopup} onClose={handleCloseLogoutPopup} />
       <FilterSuccessPopup show={showFilterSuccessPopup} onClose={handleCloseFilterSuccessPopup} />
+      <SuccessPopup show={showSuccessPopup} onClose={handleCloseSuccessPopup} message={popupMessage} />
+      <ErrorPopup show={showErrorPopup} onClose={handleCloseErrorPopup} message={popupMessage} />
       
             {/* Filter Modal */}
             {showFilterModal && (
@@ -709,13 +701,16 @@ export default function StudentList() {
                 <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
                   <label className="flex items-center">
                     <input
-                      type="checkbox"
+                      type="radio"
+                      name="willingToPlace"
                       checked={filters.willingToPlace.includes('true')}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setFilters({ ...filters, willingToPlace: [...filters.willingToPlace, 'true'] })
+                      onClick={() => {
+                        if (filters.willingToPlace.includes('true')) {
+                          // If already selected, deselect it
+                          setFilters({ ...filters, willingToPlace: [] })
                         } else {
-                          setFilters({ ...filters, willingToPlace: filters.willingToPlace.filter(v => v !== 'true') })
+                          // Select this option
+                          setFilters({ ...filters, willingToPlace: ['true'] })
                         }
                       }}
                       className="mr-2"
@@ -724,13 +719,16 @@ export default function StudentList() {
                   </label>
                   <label className="flex items-center">
                     <input
-                      type="checkbox"
+                      type="radio"
+                      name="willingToPlace"
                       checked={filters.willingToPlace.includes('false')}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setFilters({ ...filters, willingToPlace: [...filters.willingToPlace, 'false'] })
+                      onClick={() => {
+                        if (filters.willingToPlace.includes('false')) {
+                          // If already selected, deselect it
+                          setFilters({ ...filters, willingToPlace: [] })
                         } else {
-                          setFilters({ ...filters, willingToPlace: filters.willingToPlace.filter(v => v !== 'false') })
+                          // Select this option
+                          setFilters({ ...filters, willingToPlace: ['false'] })
                         }
                       }}
                       className="mr-2"
@@ -746,13 +744,16 @@ export default function StudentList() {
                 <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
                   <label className="flex items-center">
                     <input
-                      type="checkbox"
+                      type="radio"
+                      name="historyOfArrears"
                       checked={filters.historyOfArrears.includes('none')}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setFilters({ ...filters, historyOfArrears: [...filters.historyOfArrears, 'none'] })
+                      onClick={() => {
+                        if (filters.historyOfArrears.includes('none')) {
+                          // If already selected, deselect it
+                          setFilters({ ...filters, historyOfArrears: [] })
                         } else {
-                          setFilters({ ...filters, historyOfArrears: filters.historyOfArrears.filter(v => v !== 'none') })
+                          // Select this option
+                          setFilters({ ...filters, historyOfArrears: ['none'] })
                         }
                       }}
                       className="mr-2"
@@ -761,13 +762,16 @@ export default function StudentList() {
                   </label>
                   <label className="flex items-center">
                     <input
-                      type="checkbox"
+                      type="radio"
+                      name="historyOfArrears"
                       checked={filters.historyOfArrears.includes('has')}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setFilters({ ...filters, historyOfArrears: [...filters.historyOfArrears, 'has'] })
+                      onClick={() => {
+                        if (filters.historyOfArrears.includes('has')) {
+                          // If already selected, deselect it
+                          setFilters({ ...filters, historyOfArrears: [] })
                         } else {
-                          setFilters({ ...filters, historyOfArrears: filters.historyOfArrears.filter(v => v !== 'has') })
+                          // Select this option
+                          setFilters({ ...filters, historyOfArrears: ['has'] })
                         }
                       }}
                       className="mr-2"
@@ -783,13 +787,16 @@ export default function StudentList() {
                 <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
                   <label className="flex items-center">
                     <input
-                      type="checkbox"
+                      type="radio"
+                      name="currentArrears"
                       checked={filters.currentArrears.includes('none')}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setFilters({ ...filters, currentArrears: [...filters.currentArrears, 'none'] })
+                      onClick={() => {
+                        if (filters.currentArrears.includes('none')) {
+                          // If already selected, deselect it
+                          setFilters({ ...filters, currentArrears: [] })
                         } else {
-                          setFilters({ ...filters, currentArrears: filters.currentArrears.filter(v => v !== 'none') })
+                          // Select this option
+                          setFilters({ ...filters, currentArrears: ['none'] })
                         }
                       }}
                       className="mr-2"
@@ -798,13 +805,16 @@ export default function StudentList() {
                   </label>
                   <label className="flex items-center">
                     <input
-                      type="checkbox"
+                      type="radio"
+                      name="currentArrears"
                       checked={filters.currentArrears.includes('has')}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setFilters({ ...filters, currentArrears: [...filters.currentArrears, 'has'] })
+                      onClick={() => {
+                        if (filters.currentArrears.includes('has')) {
+                          // If already selected, deselect it
+                          setFilters({ ...filters, currentArrears: [] })
                         } else {
-                          setFilters({ ...filters, currentArrears: filters.currentArrears.filter(v => v !== 'has') })
+                          // Select this option
+                          setFilters({ ...filters, currentArrears: ['has'] })
                         }
                       }}
                       className="mr-2"
@@ -978,13 +988,16 @@ export default function StudentList() {
                 <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
                   <label className="flex items-center">
                     <input
-                      type="checkbox"
+                      type="radio"
+                      name="hasInternship"
                       checked={filters.hasInternship.includes('yes')}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setFilters({ ...filters, hasInternship: [...filters.hasInternship, 'yes'] })
+                      onClick={() => {
+                        if (filters.hasInternship.includes('yes')) {
+                          // If already selected, deselect it
+                          setFilters({ ...filters, hasInternship: [] })
                         } else {
-                          setFilters({ ...filters, hasInternship: filters.hasInternship.filter(v => v !== 'yes') })
+                          // Select this option
+                          setFilters({ ...filters, hasInternship: ['yes'] })
                         }
                       }}
                       className="mr-2"
@@ -993,13 +1006,16 @@ export default function StudentList() {
                   </label>
                   <label className="flex items-center">
                     <input
-                      type="checkbox"
+                      type="radio"
+                      name="hasInternship"
                       checked={filters.hasInternship.includes('no')}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setFilters({ ...filters, hasInternship: [...filters.hasInternship, 'no'] })
+                      onClick={() => {
+                        if (filters.hasInternship.includes('no')) {
+                          // If already selected, deselect it
+                          setFilters({ ...filters, hasInternship: [] })
                         } else {
-                          setFilters({ ...filters, hasInternship: filters.hasInternship.filter(v => v !== 'no') })
+                          // Select this option
+                          setFilters({ ...filters, hasInternship: ['no'] })
                         }
                       }}
                       className="mr-2"
@@ -1015,13 +1031,16 @@ export default function StudentList() {
                 <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
                   <label className="flex items-center">
                     <input
-                      type="checkbox"
+                      type="radio"
+                      name="hasProjects"
                       checked={filters.hasProjects.includes('yes')}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setFilters({ ...filters, hasProjects: [...filters.hasProjects, 'yes'] })
+                      onClick={() => {
+                        if (filters.hasProjects.includes('yes')) {
+                          // If already selected, deselect it
+                          setFilters({ ...filters, hasProjects: [] })
                         } else {
-                          setFilters({ ...filters, hasProjects: filters.hasProjects.filter(v => v !== 'yes') })
+                          // Select this option
+                          setFilters({ ...filters, hasProjects: ['yes'] })
                         }
                       }}
                       className="mr-2"
@@ -1030,13 +1049,16 @@ export default function StudentList() {
                   </label>
                   <label className="flex items-center">
                     <input
-                      type="checkbox"
+                      type="radio"
+                      name="hasProjects"
                       checked={filters.hasProjects.includes('no')}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setFilters({ ...filters, hasProjects: [...filters.hasProjects, 'no'] })
+                      onClick={() => {
+                        if (filters.hasProjects.includes('no')) {
+                          // If already selected, deselect it
+                          setFilters({ ...filters, hasProjects: [] })
                         } else {
-                          setFilters({ ...filters, hasProjects: filters.hasProjects.filter(v => v !== 'no') })
+                          // Select this option
+                          setFilters({ ...filters, hasProjects: ['no'] })
                         }
                       }}
                       className="mr-2"
@@ -1052,13 +1074,16 @@ export default function StudentList() {
                 <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
                   <label className="flex items-center">
                     <input
-                      type="checkbox"
+                      type="radio"
+                      name="hasCertifications"
                       checked={filters.hasCertifications.includes('yes')}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setFilters({ ...filters, hasCertifications: [...filters.hasCertifications, 'yes'] })
+                      onClick={() => {
+                        if (filters.hasCertifications.includes('yes')) {
+                          // If already selected, deselect it
+                          setFilters({ ...filters, hasCertifications: [] })
                         } else {
-                          setFilters({ ...filters, hasCertifications: filters.hasCertifications.filter(v => v !== 'yes') })
+                          // Select this option
+                          setFilters({ ...filters, hasCertifications: ['yes'] })
                         }
                       }}
                       className="mr-2"
@@ -1067,13 +1092,16 @@ export default function StudentList() {
                   </label>
                   <label className="flex items-center">
                     <input
-                      type="checkbox"
+                      type="radio"
+                      name="hasCertifications"
                       checked={filters.hasCertifications.includes('no')}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setFilters({ ...filters, hasCertifications: [...filters.hasCertifications, 'no'] })
+                      onClick={() => {
+                        if (filters.hasCertifications.includes('no')) {
+                          // If already selected, deselect it
+                          setFilters({ ...filters, hasCertifications: [] })
                         } else {
-                          setFilters({ ...filters, hasCertifications: filters.hasCertifications.filter(v => v !== 'no') })
+                          // Select this option
+                          setFilters({ ...filters, hasCertifications: ['no'] })
                         }
                       }}
                       className="mr-2"
@@ -1177,8 +1205,7 @@ export default function StudentList() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-neutral-300 mb-2">Admin Password</label>
-                <input
-                  type="password"
+                <PasswordInput
                   value={adminCredentials.password}
                   onChange={(e) => setAdminCredentials({ ...adminCredentials, password: e.target.value })}
                   placeholder="Enter admin password"

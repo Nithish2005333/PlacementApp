@@ -4,6 +4,7 @@ import api from '../lib/api'
 import '../styles/register.css'
 import Footer from '../components/Footer'
 import RegistrationSuccessPopup from '../components/RegistrationSuccessPopup'
+import PasswordInput from '../components/PasswordInput'
 
 export default function Register() {
   const navigate = useNavigate()
@@ -51,10 +52,12 @@ export default function Register() {
 
   return (
     <>
-      <div className="register-page">
-        <div className="form-container">
-        <div className="brand-title">Placement App</div>
-        <div className="brand-subtitle">Create your student account</div>
+      <div className="min-h-screen flex flex-col">
+        <div className="flex-1 flex items-center justify-center">
+          <div className="register-page">
+            <div className="form-container">
+            <div className="brand-title">Placement App</div>
+            <div className="brand-subtitle">Create your student account</div>
         
         <h1>REGISTER</h1>
         <form className="form" onSubmit={submit}>
@@ -120,10 +123,9 @@ export default function Register() {
           </div>
           <div className="form-group">
             <label htmlFor="password">Password:</label>
-            <input 
-              id="password" 
-              type="password" 
-              value={form.password} 
+            <PasswordInput
+              id="password"
+              value={form.password}
               onChange={(e) => {
                 const password = e.target.value
                 setForm({ ...form, password })
@@ -134,17 +136,16 @@ export default function Register() {
                 } else {
                   setPasswordMatch(null)
                 }
-              }} 
-              required 
-              placeholder="Enter your password" 
+              }}
+              required
+              placeholder="Enter your password"
             />
           </div>
           <div className="form-group">
             <label htmlFor="confirmPassword">Confirm Password:</label>
-            <input 
-              id="confirmPassword" 
-              type="password" 
-              value={form.confirmPassword} 
+            <PasswordInput
+              id="confirmPassword"
+              value={form.confirmPassword}
               onChange={(e) => {
                 const confirmPassword = e.target.value
                 setForm({ ...form, confirmPassword })
@@ -157,9 +158,9 @@ export default function Register() {
                 } else {
                   setPasswordMatch(null)
                 }
-              }} 
-              required 
-              placeholder="Confirm your password" 
+              }}
+              required
+              placeholder="Confirm your password"
             />
             {passwordError && <div style={{ color: '#f66', fontSize: 12, marginTop: 4 }}>{passwordError}</div>}
             {passwordMatch !== null && form.confirmPassword && (
@@ -188,10 +189,12 @@ export default function Register() {
             <button type="submit" disabled={loading}>{loading ? 'Registering...' : 'Register'}</button>
           </div>
         </form>
+            </div>
+          </div>
         </div>
+        <Footer />
+        <RegistrationSuccessPopup show={showSuccessPopup} onClose={handleCloseSuccessPopup} />
       </div>
-      <Footer />
-      <RegistrationSuccessPopup show={showSuccessPopup} onClose={handleCloseSuccessPopup} />
     </>
   )
 }
