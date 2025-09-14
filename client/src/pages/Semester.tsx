@@ -278,71 +278,69 @@ export default function Semester() {
                         <label className="text-sm text-neutral-400">SGPA</label>
                         <div className="flex items-center gap-2">
                           <input
-                            type="number"
-                            step="0.01"
-                            min="0"
-                            max="10"
+                            type="text"
                             value={sgpaInput}
                             onChange={(e) => {
-                              const val = Math.max(0, Math.min(10, Number(e.target.value)))
-                              setSgpaInput(e.target.value)
-                              // Update semester data immediately
-                              const updatedSemesters = [...(student.academic.semesters || [])]
-                              const semesterIndex = updatedSemesters.findIndex((s: Semester) => s.semesterNumber === selectedSemester)
-                              if (semesterIndex >= 0) {
-                                updatedSemesters[semesterIndex].sgpa = val
-                              } else {
-                                // Create new semester with SGPA
-                                updatedSemesters.push({ 
-                                  semesterNumber: selectedSemester,
-                                  subjects: [],
-                                  sgpa: val,
-                                  totalCredits: 0
-                                })
+                              const inputValue = e.target.value
+                              
+                              // Only allow digits and decimal point - no other restrictions
+                              const hasInvalidChars = /[^0-9.]/.test(inputValue)
+                              
+                              if (!hasInvalidChars) {
+                                // Check if the value is within valid range (0-10)
+                                const numValue = Number(inputValue)
+                                if (inputValue === '' || (numValue >= 0 && numValue <= 10)) {
+                                  setSgpaInput(inputValue)
+                                  // Don't update semester data in real-time - only when user clicks button or presses Enter
+                                }
                               }
-                              setStudent({ ...student, academic: { ...student.academic, semesters: updatedSemesters } })
                             }}
                             onKeyDown={(e) => {
                               if (e.key === 'Enter') {
-                                const val = Math.max(0, Math.min(10, Number(sgpaInput)))
+                                const numValue = Number(sgpaInput)
+                                if (!isNaN(numValue) && sgpaInput !== '' && !sgpaInput.endsWith('.') && numValue >= 0 && numValue <= 10) {
+                                  const updatedSemesters = [...(student.academic.semesters || [])]
+                                  const semesterIndex = updatedSemesters.findIndex((s: Semester) => s.semesterNumber === selectedSemester)
+                                  if (semesterIndex >= 0) {
+                                    updatedSemesters[semesterIndex].sgpa = numValue
+                                  } else {
+                                    // Create new semester with SGPA
+                                    updatedSemesters.push({ 
+                                      semesterNumber: selectedSemester,
+                                      subjects: [],
+                                      sgpa: numValue,
+                                      totalCredits: 0
+                                    })
+                                  }
+                                  setStudent({ ...student, academic: { ...student.academic, semesters: updatedSemesters } })
+                                }
+                              }
+                            }}
+                            placeholder="0.00"
+                            className="w-28 sm:w-40 px-3 py-2 bg-neutral-800 border border-neutral-700 rounded text-white text-center"
+                          />
+                          <button
+                            onClick={() => {
+                              const numValue = Number(sgpaInput)
+                              if (!isNaN(numValue) && sgpaInput !== '' && !sgpaInput.endsWith('.') && numValue >= 0 && numValue <= 10) {
                                 const updatedSemesters = [...(student.academic.semesters || [])]
                                 const semesterIndex = updatedSemesters.findIndex((s: Semester) => s.semesterNumber === selectedSemester)
                                 if (semesterIndex >= 0) {
-                                  updatedSemesters[semesterIndex].sgpa = val
+                                  updatedSemesters[semesterIndex].sgpa = numValue
                                 } else {
                                   // Create new semester with SGPA
                                   updatedSemesters.push({ 
                                     semesterNumber: selectedSemester,
                                     subjects: [],
-                                    sgpa: val,
+                                    sgpa: numValue,
                                     totalCredits: 0
                                   })
                                 }
                                 setStudent({ ...student, academic: { ...student.academic, semesters: updatedSemesters } })
                               }
                             }}
-                            className="w-28 sm:w-40 px-3 py-2 bg-neutral-800 border border-neutral-700 rounded text-white text-center"
-                          />
-                          <button
-                            onClick={() => {
-                              const val = Math.max(0, Math.min(10, Number(sgpaInput)))
-                              const updatedSemesters = [...(student.academic.semesters || [])]
-                              const semesterIndex = updatedSemesters.findIndex((s: Semester) => s.semesterNumber === selectedSemester)
-                              if (semesterIndex >= 0) {
-                                updatedSemesters[semesterIndex].sgpa = val
-                              } else {
-                                // Create new semester with SGPA
-                                updatedSemesters.push({ 
-                                  semesterNumber: selectedSemester,
-                                  subjects: [],
-                                  sgpa: val,
-                                  totalCredits: 0
-                                })
-                              }
-                              setStudent({ ...student, academic: { ...student.academic, semesters: updatedSemesters } })
-                            }}
                             className="px-3 py-2 bg-sky-600 hover:bg-sky-500 text-white rounded text-sm disabled:opacity-50"
-                            disabled={Number.isNaN(Number(sgpaInput))}
+                            disabled={Number.isNaN(Number(sgpaInput)) || sgpaInput === '' || sgpaInput.endsWith('.') || Number(sgpaInput) < 0 || Number(sgpaInput) > 10}
                           >
                             Update SGPA
                           </button>
@@ -424,7 +422,7 @@ export default function Semester() {
                               onChange={(e) => updateSubject(index, 'credits', Number(e.target.value))}
                               className="w-full px-2 py-1 bg-neutral-800 border border-neutral-700 rounded text-white text-sm"
                             >
-                              {Array.from({ length: 19 }, (_, i) => (i + 2) / 2).map(n => (
+                              {Array.from({ length: 21 }, (_, i) => i / 2).map(n => (
                                 <option key={n} value={n}>{n}</option>
                               ))}
                             </select>
