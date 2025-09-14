@@ -424,7 +424,7 @@ export default function Semester() {
                               onChange={(e) => updateSubject(index, 'credits', Number(e.target.value))}
                               className="w-full px-2 py-1 bg-neutral-800 border border-neutral-700 rounded text-white text-sm"
                             >
-                              {Array.from({ length: 11 }, (_, i) => i).map(n => (
+                              {Array.from({ length: 19 }, (_, i) => (i + 2) / 2).map(n => (
                                 <option key={n} value={n}>{n}</option>
                               ))}
                             </select>
