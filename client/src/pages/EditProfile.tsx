@@ -150,16 +150,29 @@ export default function EditProfile() {
 
   const addSkill = (type: 'technical' | 'logical', skill: string) => {
     if (!skill.trim()) return
+    
+    // Split by comma and clean up each skill
+    const skillsToAdd = skill.split(',').map(s => s.trim()).filter(s => s.length > 0)
+    
+    if (skillsToAdd.length === 0) return
+    
     const currentSkills = form.placement?.[`${type}Skills`] || []
-    if (!currentSkills.includes(skill.trim())) {
-      setForm({
-        ...form,
-        placement: {
-          ...form.placement,
-          [`${type}Skills`]: [...currentSkills, skill.trim()]
-        }
-      })
-    }
+    const newSkills = [...currentSkills]
+    
+    // Add each skill if it doesn't already exist
+    skillsToAdd.forEach(skillToAdd => {
+      if (!newSkills.includes(skillToAdd)) {
+        newSkills.push(skillToAdd)
+      }
+    })
+    
+    setForm({
+      ...form,
+      placement: {
+        ...form.placement,
+        [`${type}Skills`]: newSkills
+      }
+    })
   }
 
   const removeSkill = (type: 'technical' | 'logical', index: number) => {
@@ -707,7 +720,7 @@ export default function EditProfile() {
                           <input 
                             type="text"
                             className="flex-1 px-3 py-2 rounded-md bg-neutral-800 border border-neutral-700 focus:outline-none focus:border-sky-500" 
-                            placeholder="Add technical skill (e.g., JavaScript, Python, React)"
+                            placeholder="Add technical skills (e.g., JavaScript, Python, React or c,python,java)"
                             onKeyPress={(e) => {
                               if (e.key === 'Enter') {
                                 e.preventDefault()
@@ -751,7 +764,7 @@ export default function EditProfile() {
                           <input 
                             type="text"
                             className="flex-1 px-3 py-2 rounded-md bg-neutral-800 border border-neutral-700 focus:outline-none focus:border-sky-500" 
-                            placeholder="Add logical skill (e.g., Problem Solving, Critical Thinking)"
+                            placeholder="Add soft skills (e.g., Problem Solving, Critical Thinking or communication,leadership)"
                             onKeyPress={(e) => {
                               if (e.key === 'Enter') {
                                 e.preventDefault()

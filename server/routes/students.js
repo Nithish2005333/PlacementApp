@@ -94,6 +94,96 @@ router.get('/', auth('admin'), async (req, res) => {
   res.json(students);
 });
 
+// Admin: filter students with advanced criteria
+router.get('/filter', auth('admin'), async (req, res) => {
+  try {
+    const { 
+      year, 
+      department, 
+      willingToPlace, 
+      historyOfArrears, 
+      currentArrears, 
+      cgpaRange, 
+      technicalSkills, 
+      softSkills, 
+      gender 
+    } = req.query;
+    
+    const filter = {};
+    
+    // Basic filters
+    if (year) filter.year = year;
+    if (department) filter.department = department;
+    if (gender) filter.gender = gender;
+    
+    // Placement willingness
+    if (willingToPlace) {
+      const values = willingToPlace.split(',').filter(v => v.trim());
+      if (values.length === 1) {
+        filter['placement.willingToPlace'] = values[0] === 'true';
+      } else if (values.length > 1) {
+        filter['placement.willingToPlace'] = { $in: values.map(v => v === 'true') };
+      }
+    }
+    
+    // History of arrears
+    if (historyOfArrears) {
+      const values = historyOfArrears.split(',').filter(v => v.trim());
+      if (values.includes('none') && values.includes('has')) {
+        // Both selected, no filter needed
+      } else if (values.includes('none')) {
+        filter['academic.historyOfArrears'] = { $eq: 0 };
+      } else if (values.includes('has')) {
+        filter['academic.historyOfArrears'] = { $gt: 0 };
+      }
+    }
+    
+    // Current arrears
+    if (currentArrears) {
+      const values = currentArrears.split(',').filter(v => v.trim());
+      if (values.includes('none') && values.includes('has')) {
+        // Both selected, no filter needed
+      } else if (values.includes('none')) {
+        filter['academic.currentArrears'] = { $eq: 0 };
+      } else if (values.includes('has')) {
+        filter['academic.currentArrears'] = { $gt: 0 };
+      }
+    }
+    
+    // CGPA range
+    if (cgpaRange) {
+      const cgpaValue = parseFloat(cgpaRange.replace('+', ''));
+      if (!isNaN(cgpaValue)) {
+        filter['academic.cgpa'] = { $gte: cgpaValue };
+      }
+    }
+    
+    // Technical skills
+    if (technicalSkills) {
+      const skills = technicalSkills.split(',').filter(s => s.trim());
+      if (skills.length > 0) {
+        filter['placement.technicalSkills'] = { $in: skills };
+      }
+    }
+    
+    // Soft skills
+    if (softSkills) {
+      const skills = softSkills.split(',').filter(s => s.trim());
+      if (skills.length > 0) {
+        filter['placement.logicalSkills'] = { $in: skills };
+      }
+    }
+    
+    console.log('Filter query:', JSON.stringify(filter, null, 2));
+    const students = await Student.find(filter).select('registerNumber name department year');
+    console.log('Found students:', students.length);
+    res.json(students);
+  } catch (error) {
+    console.error('Filter students error:', error);
+    res.status(500).json({ error: 'Failed to filter students' });
+  }
+});
+
 // Admin: get student by id
 router.get('/:id', auth(), async (req, res) => {
   const s = await Student.findById(req.params.id);

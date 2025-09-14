@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import Footer from '../components/Footer'
 import api from '../lib/api'
+import LogoutSuccessPopup from '../components/LogoutSuccessPopup'
 
 type Student = any
 
@@ -9,6 +10,7 @@ export default function Profile() {
   const navigate = useNavigate()
   const [student, setStudent] = useState<Student | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [showLogoutPopup, setShowLogoutPopup] = useState(false)
 
   useEffect(() => {
     (async () => {
@@ -38,7 +40,7 @@ export default function Profile() {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-[#111] text-white px-3 sm:px-4 py-4 rounded-md gap-4">
         <div className="font-bold text-3xl bg-gradient-to-r from-sky-400 to-purple-400 bg-clip-text text-transparent">Placement App</div>
         <div className="flex items-center gap-2 sm:ml-auto w-full sm:w-auto flex-wrap sm:flex-nowrap">
-          <button onClick={() => { localStorage.removeItem('token'); navigate('/login') }} className="bg-rose-600 hover:bg-rose-500 text-white px-4 py-2 rounded-md">Logout</button>
+          <button onClick={() => { localStorage.removeItem('token'); localStorage.removeItem('role'); setShowLogoutPopup(true) }} className="bg-rose-600 hover:bg-rose-500 text-white px-4 py-2 rounded-md">Logout</button>
         </div>
       </div>
 
@@ -363,7 +365,18 @@ export default function Profile() {
     </div>
   )
 
-  return <div className="max-w-7xl mx-auto px-2 sm:px-3 pt-4 sm:pt-6 pb-8">{content}<Footer /></div>
+  const handleCloseLogoutPopup = () => {
+    setShowLogoutPopup(false)
+    navigate('/login', { replace: true })
+  }
+
+  return (
+    <div className="max-w-7xl mx-auto px-2 sm:px-3 pt-4 sm:pt-6 pb-8">
+      {content}
+      <Footer />
+      <LogoutSuccessPopup show={showLogoutPopup} onClose={handleCloseLogoutPopup} />
+    </div>
+  )
 }
 
 

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import api from '../../lib/api'
 import Footer from '../../components/Footer'
+import LogoutSuccessPopup from '../../components/LogoutSuccessPopup'
 
 export default function StudentDetails() {
   const { id } = useParams()
@@ -11,6 +12,7 @@ export default function StudentDetails() {
   const [selectedSemester, setSelectedSemester] = useState<number>(1)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [showMessage, setShowMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
+  const [showLogoutPopup, setShowLogoutPopup] = useState(false)
 
   // Consistent styling for header action buttons
   const headerButtonBase = 'inline-flex items-center justify-center px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base rounded-md border border-white/10 shadow-sm transition-colors active:scale-[.98] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#111]';
@@ -18,6 +20,11 @@ export default function StudentDetails() {
   const handleLogout = () => {
     localStorage.removeItem('token')
     localStorage.removeItem('role')
+    setShowLogoutPopup(true)
+  }
+
+  const handleCloseLogoutPopup = () => {
+    setShowLogoutPopup(false)
     navigate('/admin/login', { replace: true })
   }
 
@@ -649,7 +656,8 @@ export default function StudentDetails() {
   )
 
   const content = (
-    <div className="max-w-7xl mx-auto px-2 sm:px-3 pt-4 sm:pt-6 pb-8">
+    <div className="min-h-screen">
+      <div className="max-w-7xl mx-auto px-2 sm:px-3 pt-4 sm:pt-6 pb-20">
       <div className="space-y-3 pt-1 sm:pt-2 m-auto">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-[#111] text-white px-3 sm:px-4 py-4 rounded-md gap-3 sm:gap-4">
           <div className="font-bold text-2xl sm:text-3xl bg-gradient-to-r from-sky-400 to-purple-400 bg-clip-text text-transparent">Placement App</div>
@@ -774,13 +782,15 @@ export default function StudentDetails() {
           </div>
         </div>
       )}
+      </div>
+      <Footer fixed />
     </div>
   )
 
   return (
     <>
       {content}
-      <Footer />
+      <LogoutSuccessPopup show={showLogoutPopup} onClose={handleCloseLogoutPopup} />
     </>
   )
 }

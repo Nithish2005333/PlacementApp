@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import Footer from '../components/Footer'
+import LogoutSuccessPopup from '../components/LogoutSuccessPopup'
 import api from '../lib/api'
 
 type Subject = {
@@ -26,6 +27,7 @@ export default function Semester() {
   const [error, setError] = useState<string | null>(null)
   const [saved, setSaved] = useState(false)
   const [sgpaInput, setSgpaInput] = useState<string>('')
+  const [showLogoutPopup, setShowLogoutPopup] = useState(false)
 
   const allowedGrades: string[] = ['O', 'A+', 'A', 'B+', 'B', 'C', 'RA']
 
@@ -195,7 +197,7 @@ export default function Semester() {
       )}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-[#111] text-white px-3 sm:px-4 py-4 rounded-md gap-4">
         <div className="font-bold text-3xl bg-gradient-to-r from-sky-400 to-purple-400 bg-clip-text text-transparent">Placement App</div>
-        <button onClick={() => { localStorage.removeItem('token'); navigate('/login') }} className="bg-rose-600 hover:bg-rose-500 text-white px-4 py-2 rounded-md sm:ml-auto">Logout</button>
+        <button onClick={() => { localStorage.removeItem('token'); setShowLogoutPopup(true) }} className="bg-rose-600 hover:bg-rose-500 text-white px-4 py-2 rounded-md sm:ml-auto">Logout</button>
       </div>
 
       <div className="flex flex-col lg:flex-row gap-2 sm:gap-3">
@@ -281,7 +283,25 @@ export default function Semester() {
                             min="0"
                             max="10"
                             value={sgpaInput}
-                            onChange={(e) => setSgpaInput(e.target.value)}
+                            onChange={(e) => {
+                              const val = Math.max(0, Math.min(10, Number(e.target.value)))
+                              setSgpaInput(e.target.value)
+                              // Update semester data immediately
+                              const updatedSemesters = [...(student.academic.semesters || [])]
+                              const semesterIndex = updatedSemesters.findIndex((s: Semester) => s.semesterNumber === selectedSemester)
+                              if (semesterIndex >= 0) {
+                                updatedSemesters[semesterIndex].sgpa = val
+                              } else {
+                                // Create new semester with SGPA
+                                updatedSemesters.push({ 
+                                  semesterNumber: selectedSemester,
+                                  subjects: [],
+                                  sgpa: val,
+                                  totalCredits: 0
+                                })
+                              }
+                              setStudent({ ...student, academic: { ...student.academic, semesters: updatedSemesters } })
+                            }}
                             onKeyDown={(e) => {
                               if (e.key === 'Enter') {
                                 const val = Math.max(0, Math.min(10, Number(sgpaInput)))
@@ -290,7 +310,13 @@ export default function Semester() {
                                 if (semesterIndex >= 0) {
                                   updatedSemesters[semesterIndex].sgpa = val
                                 } else {
-                                  updatedSemesters.push({ ...currentSemester, sgpa: val })
+                                  // Create new semester with SGPA
+                                  updatedSemesters.push({ 
+                                    semesterNumber: selectedSemester,
+                                    subjects: [],
+                                    sgpa: val,
+                                    totalCredits: 0
+                                  })
                                 }
                                 setStudent({ ...student, academic: { ...student.academic, semesters: updatedSemesters } })
                               }
@@ -305,14 +331,20 @@ export default function Semester() {
                               if (semesterIndex >= 0) {
                                 updatedSemesters[semesterIndex].sgpa = val
                               } else {
-                                updatedSemesters.push({ ...currentSemester, sgpa: val })
+                                // Create new semester with SGPA
+                                updatedSemesters.push({ 
+                                  semesterNumber: selectedSemester,
+                                  subjects: [],
+                                  sgpa: val,
+                                  totalCredits: 0
+                                })
                               }
                               setStudent({ ...student, academic: { ...student.academic, semesters: updatedSemesters } })
                             }}
                             className="px-3 py-2 bg-sky-600 hover:bg-sky-500 text-white rounded text-sm disabled:opacity-50"
                             disabled={Number.isNaN(Number(sgpaInput))}
                           >
-                            Add SGPA
+                            Update SGPA
                           </button>
                         </div>
                       </div>
@@ -459,5 +491,10 @@ export default function Semester() {
     </div>
   )
 
-  return <div className="max-w-7xl mx-auto p-4">{content}<Footer /></div>
+  const handleCloseLogoutPopup = () => {
+    setShowLogoutPopup(false)
+    navigate('/login', { replace: true })
+  }
+
+  return <div className="max-w-7xl mx-auto p-4">{content}<Footer /><LogoutSuccessPopup show={showLogoutPopup} onClose={handleCloseLogoutPopup} /></div>
 }

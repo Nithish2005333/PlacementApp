@@ -3,26 +3,45 @@ import { useNavigate, Link } from 'react-router-dom'
 import api from '../lib/api'
 import '../styles/register.css'
 import Footer from '../components/Footer'
+import RegistrationSuccessPopup from '../components/RegistrationSuccessPopup'
 
 export default function Register() {
   const navigate = useNavigate()
-  const [form, setForm] = useState({ name: '', registerNumber: '', email: '', password: '', department: '', year: '' })
+  const [form, setForm] = useState({ name: '', registerNumber: '', email: '', password: '', confirmPassword: '', department: '', year: '' })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [passwordError, setPasswordError] = useState<string | null>(null)
+  const [passwordMatch, setPasswordMatch] = useState<boolean | null>(null)
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false)
 
   async function submit(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
+    setPasswordError(null)
+    
+    // Check if passwords match
+    if (form.password !== form.confirmPassword) {
+      setPasswordError('Passwords do not match')
+      return
+    }
+    
     setLoading(true)
     try {
-      await api.post('/auth/student/register', form)
-      // After successful registration, redirect to login page
-      navigate('/login', { replace: true })
+      // Remove confirmPassword from the data sent to server
+      const { confirmPassword, ...registerData } = form
+      await api.post('/auth/student/register', registerData)
+      // Show success popup
+      setShowSuccessPopup(true)
     } catch (err: any) {
       setError(err.response?.data?.error || 'Registration failed')
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleCloseSuccessPopup = () => {
+    setShowSuccessPopup(false)
+    navigate('/login', { replace: true })
   }
 
   // Auth link hover behavior (purple scheme to match other pages)
@@ -101,7 +120,61 @@ export default function Register() {
           </div>
           <div className="form-group">
             <label htmlFor="password">Password:</label>
-            <input id="password" type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required placeholder="Enter your password" />
+            <input 
+              id="password" 
+              type="password" 
+              value={form.password} 
+              onChange={(e) => {
+                const password = e.target.value
+                setForm({ ...form, password })
+                
+                // Real-time password matching validation
+                if (form.confirmPassword && password) {
+                  setPasswordMatch(form.confirmPassword === password)
+                } else {
+                  setPasswordMatch(null)
+                }
+              }} 
+              required 
+              placeholder="Enter your password" 
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="confirmPassword">Confirm Password:</label>
+            <input 
+              id="confirmPassword" 
+              type="password" 
+              value={form.confirmPassword} 
+              onChange={(e) => {
+                const confirmPassword = e.target.value
+                setForm({ ...form, confirmPassword })
+                // Clear password error when user starts typing
+                if (passwordError) setPasswordError(null)
+                
+                // Real-time password matching validation
+                if (confirmPassword && form.password) {
+                  setPasswordMatch(confirmPassword === form.password)
+                } else {
+                  setPasswordMatch(null)
+                }
+              }} 
+              required 
+              placeholder="Confirm your password" 
+            />
+            {passwordError && <div style={{ color: '#f66', fontSize: 12, marginTop: 4 }}>{passwordError}</div>}
+            {passwordMatch !== null && form.confirmPassword && (
+              <div style={{ 
+                color: passwordMatch ? '#10b981' : '#f66', 
+                fontSize: 12, 
+                marginTop: 4,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}>
+                {passwordMatch ? '✓' : '✗'} 
+                {passwordMatch ? 'Passwords match' : 'Passwords do not match'}
+              </div>
+            )}
           </div>
           <div className="form-group">
             <p>Have an account?
@@ -118,6 +191,7 @@ export default function Register() {
         </div>
       </div>
       <Footer />
+      <RegistrationSuccessPopup show={showSuccessPopup} onClose={handleCloseSuccessPopup} />
     </>
   )
 }

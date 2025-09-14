@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import Footer from '../components/Footer'
+import LogoutSuccessPopup from '../components/LogoutSuccessPopup'
 import api from '../lib/api'
 
 export default function Resume() {
@@ -8,6 +9,7 @@ export default function Resume() {
   const [student, setStudent] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [showLogoutPopup, setShowLogoutPopup] = useState(false)
 
   useEffect(() => {
     (async () => {
@@ -117,7 +119,7 @@ export default function Resume() {
       <div className="space-y-6 mt-16">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-[#111] text-white px-4 sm:px-6 py-4 rounded-md gap-4">
           <div className="font-semibold">Resume</div>
-          <button onClick={() => { localStorage.removeItem('token'); navigate('/login') }} className="bg-rose-600 hover:bg-rose-500 text-white px-3 py-1 rounded-md w-full sm:w-auto">Logout</button>
+          <button onClick={() => { localStorage.removeItem('token'); setShowLogoutPopup(true) }} className="bg-rose-600 hover:bg-rose-500 text-white px-3 py-1 rounded-md w-full sm:w-auto">Logout</button>
         </div>
         <div className="bg-[#242424] rounded-md p-4 border border-neutral-800 text-center text-red-400">{error}</div>
       </div>
@@ -128,7 +130,7 @@ export default function Resume() {
     <div className="space-y-3 pt-1 sm:pt-2 m-auto">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-[#111] text-white px-3 sm:px-4 py-4 rounded-md gap-4">
         <div className="font-bold text-3xl bg-gradient-to-r from-sky-400 to-purple-400 bg-clip-text text-transparent">Placement App</div>
-        <button onClick={() => { localStorage.removeItem('token'); navigate('/login') }} className="bg-rose-600 hover:bg-rose-500 text-white px-4 py-2 rounded-md sm:ml-auto">Logout</button>
+        <button onClick={() => { localStorage.removeItem('token'); setShowLogoutPopup(true) }} className="bg-rose-600 hover:bg-rose-500 text-white px-4 py-2 rounded-md sm:ml-auto">Logout</button>
       </div>
 
       <div className="flex flex-col lg:flex-row gap-3">
@@ -190,5 +192,10 @@ export default function Resume() {
     </div>
   )
 
-  return <div className="max-w-7xl mx-auto px-2 sm:px-3 pt-4 sm:pt-6 pb-8 text-white bg-[#0a0a0a] min-h-screen">{content}<Footer /></div>
+  const handleCloseLogoutPopup = () => {
+    setShowLogoutPopup(false)
+    navigate('/login', { replace: true })
+  }
+
+  return <div className="max-w-7xl mx-auto px-2 sm:px-3 pt-4 sm:pt-6 pb-8 text-white bg-[#0a0a0a] min-h-screen">{content}<Footer /><LogoutSuccessPopup show={showLogoutPopup} onClose={handleCloseLogoutPopup} /></div>
 }
