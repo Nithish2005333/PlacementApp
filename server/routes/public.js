@@ -165,7 +165,7 @@ router.get('/approval', async (req, res) => {
             </div>
           </body>
           </html>`,
-          text: `Hi ${student.name}, your registration has been approved${approverInfo}. You can now login to your account at https://placementapp-1t8j.onrender.com/login`
+          text: `Hi ${student.name}, your registration has been approved${approverInfo}. You can now login to your account at https://placementapp-0htf.onrender.com/login`
         });
       } catch {}
       
