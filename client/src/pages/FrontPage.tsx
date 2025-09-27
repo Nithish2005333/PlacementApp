@@ -45,7 +45,7 @@ export default function FrontPage() {
               {/* Mobile container with proper alignment */}
               <div className="text-slate-200 mb-12 pb-0 text-xs leading-5 text-center tracking-[0.01em] font-medium mobile-text-center px-0">
                 <div className="mobile-gloss-box mx-auto">
-                  <p className="mobile-justify">A  placement portal for students and admins. Maintain verified profiles with downloadable resumes. Access everything on a mobile-responsive platform.</p>
+                  <p className="mobile-justify">A dedicated placement portal for students and admins. Maintain verified profiles with downloadable resumes. Access everything on a mobile-responsive platform.</p>
                 </div>
               </div>
               <div className="flex flex-col items-center gap-5 mt-8">
