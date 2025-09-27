@@ -124,7 +124,7 @@ router.post('/student/register', async (req, res) => {
       const { sendEmail } = require('../lib/email');
       const jwt = require('jsonwebtoken');
       const APPROVAL_SECRET = process.env.APPROVAL_SECRET || (process.env.JWT_SECRET || 'dev_secret_change_me');
-      const base = process.env.SERVER_ORIGIN || process.env.CLIENT_ORIGIN || 'https://placementapp-1t8j.onrender.com';
+      const base = process.env.SERVER_ORIGIN || process.env.CLIENT_ORIGIN || 'https://placementapp-0htf.onrender.com';
       await Promise.all((reps || []).map(async (r) => {
         const tokenPayload = { 
           pendingRegistrationId: String(pendingRegistration._id), 
