@@ -160,7 +160,30 @@ async function sendEmail({ to, subject, html, text }) {
       console.log('Email server connection verified successfully');
     }
 
-    const info = await transporter.sendMail({ from, to, subject, text, html });
+    // Enhanced email headers to avoid spam
+    const mailOptions = {
+      from: `"Placement App" <${from}>`,
+      to,
+      subject,
+      text,
+      html,
+      headers: {
+        'X-Mailer': 'Placement App v1.0',
+        'X-Priority': '3',
+        'X-MSMail-Priority': 'Normal',
+        'Importance': 'Normal',
+        'X-Report-Abuse': 'Please report abuse to support@placementapp.com',
+        'List-Unsubscribe': '<mailto:unsubscribe@placementapp.com>',
+        'Return-Path': from,
+        'Reply-To': from,
+        'X-Entity-Ref-ID': Date.now().toString(),
+        'X-Auto-Response-Suppress': 'All',
+        'X-Content-Type-Options': 'nosniff',
+        'X-Frame-Options': 'DENY'
+      }
+    };
+
+    const info = await transporter.sendMail(mailOptions);
     console.log(`Email sent successfully. MessageId: ${info.messageId}, Accepted: ${info.accepted}, Rejected: ${info.rejected}`);
     return { messageId: info.messageId, accepted: info.accepted, rejected: info.rejected };
   } catch (error) {
@@ -185,6 +208,8 @@ async function sendOtpEmail(to, code, purpose = 'Verification Code') {
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${purpose}</title>
+    <meta name="description" content="Your verification code for Placement App">
+    <meta name="robots" content="noindex, nofollow">
   </head>
   <body style="margin:0;padding:0;background-color:#f8fafc;font-family:Arial,sans-serif">
     <div style="max-width:600px;margin:0 auto;background-color:#ffffff">
@@ -212,9 +237,9 @@ async function sendOtpEmail(to, code, purpose = 'Verification Code') {
           </p>
         </div>
         
-        <div style="background:#fef3c7;border:1px solid #f59e0b;border-radius:8px;padding:15px;margin:20px 0">
-          <p style="color:#92400e;margin:0;font-size:14px;text-align:center">
-            <strong>📧 Important:</strong> If you don't see this email in your inbox, please check your <strong>spam/junk folder</strong> and mark it as "Not Spam" to receive future emails.
+        <div style="background:#e0f2fe;border:1px solid #0ea5e9;border-radius:8px;padding:15px;margin:20px 0">
+          <p style="color:#0c4a6e;margin:0;font-size:14px;text-align:center">
+            <strong>📧 Email Delivery:</strong> If you don't see this email in your inbox, please check your <strong>spam/junk folder</strong> and mark it as "Not Spam" to receive future emails.
           </p>
         </div>
         
@@ -229,12 +254,15 @@ async function sendOtpEmail(to, code, purpose = 'Verification Code') {
         <p style="color:#9ca3af;font-size:12px;margin:0">
           This is an automated message from Placement App. Please do not reply to this email.
         </p>
+        <p style="color:#9ca3af;font-size:12px;margin:5px 0 0 0">
+          Placement App - Student Registration Portal
+        </p>
       </div>
     </div>
   </body>
   </html>`;
   
-  const text = `Your ${purpose} is: ${code}\n\nThis code expires in 5 minutes.\n\nIf you did not request this code, please ignore this email.\n\nFor security reasons, do not share this code with anyone.`;
+  const text = `Your ${purpose} is: ${code}\n\nThis code expires in 5 minutes.\n\nIf you did not request this code, please ignore this email.\n\nFor security reasons, do not share this code with anyone.\n\nPlacement App - Student Registration Portal`;
   return sendEmail({ to, subject, html, text });
 }
 

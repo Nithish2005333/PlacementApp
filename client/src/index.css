@@ -44,6 +44,23 @@ html, body, #root {
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* Mobile OTP Input Styles - Grid Layout */
+@media (max-width: 640px) {
+  .otp-container-mobile {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 12px !important;
+    max-width: 240px !important;
+    margin: 0 auto !important;
+  }
+  
+  .otp-container-mobile .otp-cell {
+    width: 64px !important;
+    height: 64px !important;
+    font-size: 20px !important;
+  }
+}
+
 /* Prevent content cutoff on small screens */
 .container-page {
   max-width: 1120px;

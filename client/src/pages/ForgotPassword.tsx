@@ -5,7 +5,7 @@ import OTPInput from '../components/OTPInput';
 import PasswordInput from '../components/PasswordInput';
 import Footer from '../components/Footer';
 import ErrorPopup from '../components/ErrorPopup';
-import EmailSpamPopup from '../components/EmailSpamPopup';
+// import EmailSpamPopup from '../components/EmailSpamPopup'; // Removed - only show on register page
 import '../styles/legacy-login.css';
 
 const ForgotPassword: React.FC = () => {
@@ -18,7 +18,7 @@ const ForgotPassword: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [otpSending, setOtpSending] = useState(false);
-  const [showEmailSpamPopup, setShowEmailSpamPopup] = useState(false);
+  // const [showEmailSpamPopup, setShowEmailSpamPopup] = useState(false); // Removed - only show on register page
   const [otpSent, setOtpSent] = useState(false);
   const [otpVerifying, setOtpVerifying] = useState(false);
   const [otpVerified, setOtpVerified] = useState(false);
@@ -57,7 +57,7 @@ const ForgotPassword: React.FC = () => {
         setOtpSent(true);
         setStep('otp');
         setSuccess('OTP sent to your email');
-        setShowEmailSpamPopup(true);
+        // setShowEmailSpamPopup(true); // Removed - only show on register page
         // start resend cooldown (60s)
         setResendCooldown(60);
         const interval = setInterval(() => {
@@ -88,7 +88,7 @@ const ForgotPassword: React.FC = () => {
       const response = await api.post('/auth/student/forgot-password', { email });
       if (response.data.ok) {
         setSuccess('OTP resent to your email');
-        setShowEmailSpamPopup(true);
+        // setShowEmailSpamPopup(true); // Removed - only show on register page
         setResendCooldown(60);
         const interval = setInterval(() => {
           setResendCooldown((s) => {
@@ -332,11 +332,7 @@ const ForgotPassword: React.FC = () => {
         onClose={() => setShowErrorPopup(false)} 
         message={error || ''} 
       />
-      <EmailSpamPopup 
-        show={showEmailSpamPopup} 
-        onClose={() => setShowEmailSpamPopup(false)} 
-        type="otp"
-      />
+      {/* EmailSpamPopup removed - only show on register page */}
     </div>
   );
 };

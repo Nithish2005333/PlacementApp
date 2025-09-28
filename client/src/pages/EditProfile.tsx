@@ -4,7 +4,7 @@ import api from '../lib/api'
 import OTPInput from '../components/OTPInput'
 import { departmentsStore } from '../lib/departments'
 import Footer from '../components/Footer'
-import EmailSpamPopup from '../components/EmailSpamPopup'
+// import EmailSpamPopup from '../components/EmailSpamPopup' // Removed - only show on register page
 
 export default function EditProfile() {
   const navigate = useNavigate()
@@ -24,7 +24,7 @@ export default function EditProfile() {
   const [otpCode, setOtpCode] = useState<string>('')
   const [otpVerifying, setOtpVerifying] = useState<boolean>(false)
   const [otpVerified, setOtpVerified] = useState<boolean>(false)
-  const [showEmailSpamPopup, setShowEmailSpamPopup] = useState(false)
+  // const [showEmailSpamPopup, setShowEmailSpamPopup] = useState(false) // Removed - only show on register page
 
   useEffect(() => {
     (async () => {
@@ -538,7 +538,7 @@ export default function EditProfile() {
                                     try {
                                       await api.post('/auth/otp/send', { email: form.email, purpose: 'email_change' })
                                       setOtpSent(true)
-                                      setShowEmailSpamPopup(true)
+                                      // setShowEmailSpamPopup(true) // Removed - only show on register page
                                     } catch (err:any) {
                                       setError(err?.response?.data?.error || 'Failed to send OTP')
                                     } finally {
@@ -1046,11 +1046,7 @@ export default function EditProfile() {
     <div className="min-h-screen flex flex-col">
       {content}
       <Footer />
-      <EmailSpamPopup 
-        show={showEmailSpamPopup} 
-        onClose={() => setShowEmailSpamPopup(false)} 
-        type="otp"
-      />
+      {/* EmailSpamPopup removed - only show on register page */}
     </div>
   )
 }

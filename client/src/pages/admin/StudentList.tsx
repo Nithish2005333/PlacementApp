@@ -1271,10 +1271,13 @@ Sample columns found: ${sampleColumns}`)
       await api.post('/admin/staff', payload)
       setShowStaffCreateModal(false)
       setStaffCreateForm({ username: '', password: '', name: '', email: '', department: department || '' })
+      setPopupMessage('Staff admin created successfully')
+      setShowSuccessPopup(true)
       fetchStaffAdmins()
     } catch (e) {
       console.error('Create staff failed', e)
-      alert('Failed to create staff admin. Please check inputs and try again.')
+      setPopupMessage('Failed to create staff admin. Please check inputs and try again.')
+      setShowErrorPopup(true)
     }
   }
 
@@ -1293,11 +1296,13 @@ Sample columns found: ${sampleColumns}`)
         setVerifyTargetUsername('')
         setVerifyForm({ username: '', password: '' })
       } else {
-        alert('Invalid admin credentials')
+        setPopupMessage('Invalid admin credentials')
+        setShowErrorPopup(true)
       }
     } catch (e) {
       console.error('Verify admin failed', e)
-      alert('Verification failed. Try again.')
+      setPopupMessage('Verification failed. Try again.')
+      setShowErrorPopup(true)
     }
   }
 
@@ -3420,9 +3425,9 @@ Sample columns found: ${sampleColumns}`)
                 <PasswordInput value={verifyForm.password} onValueChange={(v)=>setVerifyForm({ ...verifyForm, password:v })} className="w-full px-3 py-2 rounded-md bg-neutral-800 border border-neutral-700 text-white" />
               </div>
             </div>
-            <div className="p-4 border-t border-neutral-800 flex items-center justify-end gap-2">
-              <button onClick={()=>{ setShowVerifyModal(false); setVerifyForm({ username:'', password:'' }); }} className="px-3 py-2 rounded-md border border-neutral-700 text-neutral-200">Cancel</button>
-              <button onClick={verifyAdminCredentials} className="px-3 py-2 rounded-md border border-blue-700 text-blue-200 hover:bg-blue-900/30">Verify</button>
+            <div className="p-4 border-t border-neutral-800 flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2">
+              <button onClick={()=>{ setShowVerifyModal(false); setVerifyForm({ username:'', password:'' }); }} className="px-4 py-3 sm:py-2 rounded-md border border-neutral-700 text-neutral-200 hover:bg-neutral-800 text-sm sm:text-base">Cancel</button>
+              <button onClick={verifyAdminCredentials} className="px-4 py-3 sm:py-2 rounded-md border border-blue-700 text-blue-200 hover:bg-blue-900/30 text-sm sm:text-base">Verify</button>
             </div>
           </div>
         </div>
