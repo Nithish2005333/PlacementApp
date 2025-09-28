@@ -1246,7 +1246,7 @@ Sample columns found: ${sampleColumns}`)
 
   async function fetchStaffAdmins() {
     try {
-      const { data } = await api.get('/admin/staff')
+      const { data } = await api.get('/admin/staff', { params: { department } })
       setStaffList(data || [])
     } catch (e) {
       console.error('Failed to load staff admins', e)

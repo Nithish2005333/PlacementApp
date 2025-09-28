@@ -29,11 +29,18 @@ router.post('/staff', auth('admin'), async (req, res) => {
 });
 
 // List staff admins (admin only)
-router.get('/staff', auth('admin'), async (_req, res) => {
+router.get('/staff', auth('admin'), async (req, res) => {
   try {
     const Admin = require('../models/Admin');
-    // Include department so the UI can show/filter by department
-    const list = await Admin.find({ role: 'staff' }).select('username name email role department createdAt').lean();
+    const { department } = req.query;
+    
+    // Build filter - if department is specified, filter by it
+    const filter = { role: 'staff' };
+    if (department) {
+      filter.department = department;
+    }
+    
+    const list = await Admin.find(filter).select('username name email role department createdAt').lean();
     res.json(list);
   } catch (e) {
     console.error('List staff error:', e);
@@ -293,7 +300,7 @@ router.post('/reps/approve', auth(['admin','staff','rep']), async (req, res) => 
               </div>
               
               <div style="text-align:center;margin:30px 0">
-                <a href="https://placementapp-0htf.onrender.com/login" style="display:inline-block;padding:12px 24px;background:#16a34a;color:#ffffff;border-radius:8px;text-decoration:none;font-weight:600">🚀 Login to Placement App</a>
+                <a href="https://placementapp-1t8j.onrender.com/login" style="display:inline-block;padding:12px 24px;background:#16a34a;color:#ffffff;border-radius:8px;text-decoration:none;font-weight:600">🚀 Login to Placement App</a>
               </div>
               
               <div style="background:#fef3c7;border:1px solid #f59e0b;border-radius:8px;padding:15px;margin:20px 0">
@@ -316,7 +323,7 @@ router.post('/reps/approve', auth(['admin','staff','rep']), async (req, res) => 
           </div>
         </body>
         </html>`, 
-        text: `Hi ${student.name}, your registration has been approved${approverInfo}. You can now login to your account at https://placementapp-0htf.onrender.com/login` 
+        text: `Hi ${student.name}, your registration has been approved${approverInfo}. You can now login to your account at https://placementapp-1t8j.onrender.com/login` 
       }); 
     } catch {}
     
