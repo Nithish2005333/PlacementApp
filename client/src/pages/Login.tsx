@@ -12,11 +12,15 @@ export default function Login() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [showErrorPopup, setShowErrorPopup] = useState(false)
+  const [regNumberError, setRegNumberError] = useState(false)
+  const [passwordError, setPasswordError] = useState(false)
 
   async function submit(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
     setShowErrorPopup(false)
+    setRegNumberError(false)
+    setPasswordError(false)
     setLoading(true)
     try {
       const { data } = await api.post('/auth/student/login', form)
@@ -29,12 +33,17 @@ export default function Login() {
       let errorMessage = ''
       if (status === 403) {
         errorMessage = 'Registration pending approval. You will be notified by email once approved.'
+        setRegNumberError(true)
       } else if (msg === 'Invalid username') {
         errorMessage = 'Register number not found'
+        setRegNumberError(true)
       } else if (msg === 'Incorrect password') {
         errorMessage = 'Incorrect password'
+        setPasswordError(true)
       } else {
         errorMessage = msg || 'Login failed'
+        setRegNumberError(true)
+        setPasswordError(true)
       }
       setError(errorMessage)
       setShowErrorPopup(true)
@@ -81,7 +90,10 @@ export default function Login() {
                 onChange={(e) => {
                   const digitsOnly = e.target.value.replace(/\D/g, '').slice(0, 12)
                   setForm({ ...form, registerNumber: digitsOnly })
-                }} 
+                  // Clear error when user starts typing
+                  if (regNumberError) setRegNumberError(false)
+                }}
+                className={regNumberError ? 'error' : ''}
               />
             </div>
             <div className="form-group">
@@ -90,9 +102,14 @@ export default function Login() {
                 id="password"
                 name="password"
                 value={form.password}
-                onChange={(e) => setForm({ ...form, password: e.target.value })}
+                onChange={(e) => {
+                  setForm({ ...form, password: e.target.value })
+                  // Clear error when user starts typing
+                  if (passwordError) setPasswordError(false)
+                }}
                 placeholder="Enter your password"
                 required
+                hasError={passwordError}
               />
             </div>
             <div className="form-group">

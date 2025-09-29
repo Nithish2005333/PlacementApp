@@ -24,6 +24,7 @@ export default function EditProfile() {
   const [otpCode, setOtpCode] = useState<string>('')
   const [otpVerifying, setOtpVerifying] = useState<boolean>(false)
   const [otpVerified, setOtpVerified] = useState<boolean>(false)
+  const [otpError, setOtpError] = useState<boolean>(false)
   // const [showEmailSpamPopup, setShowEmailSpamPopup] = useState(false) // Removed - only show on register page
 
   useEffect(() => {
@@ -551,18 +552,25 @@ export default function EditProfile() {
                               </div>
                               {otpSent && !otpVerified && (
                                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-                                  <OTPInput value={otpCode} onChange={(next)=> setOtpCode(next.replace(/\s/g,''))} />
+                                  <OTPInput 
+                                    value={otpCode} 
+                                    onChange={(next)=> setOtpCode(next.replace(/\s/g,''))} 
+                                    hasError={otpError}
+                                    onError={setOtpError}
+                                  />
                                   <button
                                     type="button"
                                     disabled={otpVerifying || otpCode.length !== 6}
                                     onClick={async () => {
                                       setError(null)
+                                      setOtpError(false)
                                       setOtpVerifying(true)
                                       try {
                                         await api.post('/auth/otp/verify', { email: form.email, purpose: 'email_change', code: otpCode })
                                         setOtpVerified(true)
                                       } catch (err:any) {
                                         setError(err?.response?.data?.error || 'OTP verification failed')
+                                        setOtpError(true)
                                         setOtpVerified(false)
                                       } finally {
                                         setOtpVerifying(false)

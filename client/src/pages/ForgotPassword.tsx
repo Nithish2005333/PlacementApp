@@ -5,7 +5,7 @@ import OTPInput from '../components/OTPInput';
 import PasswordInput from '../components/PasswordInput';
 import Footer from '../components/Footer';
 import ErrorPopup from '../components/ErrorPopup';
-// import EmailSpamPopup from '../components/EmailSpamPopup'; // Removed - only show on register page
+import EmailSpamPopup from '../components/EmailSpamPopup';
 import '../styles/legacy-login.css';
 
 const ForgotPassword: React.FC = () => {
@@ -18,7 +18,7 @@ const ForgotPassword: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [otpSending, setOtpSending] = useState(false);
-  // const [showEmailSpamPopup, setShowEmailSpamPopup] = useState(false); // Removed - only show on register page
+  const [showEmailSpamPopup, setShowEmailSpamPopup] = useState(false);
   const [otpSent, setOtpSent] = useState(false);
   const [otpVerifying, setOtpVerifying] = useState(false);
   const [otpVerified, setOtpVerified] = useState(false);
@@ -26,6 +26,7 @@ const ForgotPassword: React.FC = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [showErrorPopup, setShowErrorPopup] = useState(false);
+  const [otpError, setOtpError] = useState(false);
   
   // Password validation function
   const validatePassword = (password: string): string | null => {
@@ -57,7 +58,7 @@ const ForgotPassword: React.FC = () => {
         setOtpSent(true);
         setStep('otp');
         setSuccess('OTP sent to your email');
-        // setShowEmailSpamPopup(true); // Removed - only show on register page
+        setShowEmailSpamPopup(true);
         // start resend cooldown (60s)
         setResendCooldown(60);
         const interval = setInterval(() => {
@@ -88,7 +89,7 @@ const ForgotPassword: React.FC = () => {
       const response = await api.post('/auth/student/forgot-password', { email });
       if (response.data.ok) {
         setSuccess('OTP resent to your email');
-        // setShowEmailSpamPopup(true); // Removed - only show on register page
+        setShowEmailSpamPopup(true);
         setResendCooldown(60);
         const interval = setInterval(() => {
           setResendCooldown((s) => {
@@ -109,12 +110,14 @@ const ForgotPassword: React.FC = () => {
     e.preventDefault();
     if (!otp || otp.length !== 6) {
       setError('Please enter a valid 6-digit OTP');
+      setOtpError(true);
       setShowErrorPopup(true);
       return;
     }
 
     setOtpVerifying(true);
     setError('');
+    setOtpError(false);
     try {
       const response = await api.post('/auth/student/verify-forgot-otp', { 
         email,
@@ -127,6 +130,7 @@ const ForgotPassword: React.FC = () => {
       }
     } catch (err: any) {
       setError(err.response?.data?.error || 'Invalid OTP');
+      setOtpError(true);
       setShowErrorPopup(true);
     } finally {
       setOtpVerifying(false);
@@ -236,6 +240,8 @@ const ForgotPassword: React.FC = () => {
                     value={otp}
                     onChange={setOtp}
                     length={6}
+                    hasError={otpError}
+                    onError={setOtpError}
                     containerClassName="otp-fp-container"
                     cellClassName="otp-fp-cell"
                   />
@@ -332,7 +338,11 @@ const ForgotPassword: React.FC = () => {
         onClose={() => setShowErrorPopup(false)} 
         message={error || ''} 
       />
-      {/* EmailSpamPopup removed - only show on register page */}
+      <EmailSpamPopup 
+        show={showEmailSpamPopup} 
+        onClose={() => setShowEmailSpamPopup(false)} 
+        type="otp"
+      />
     </div>
   );
 };
