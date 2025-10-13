@@ -142,7 +142,7 @@ router.get('/approval', async (req, res) => {
                 </div>
                 
                 <div style="text-align:center;margin:30px 0">
-                  <a href="https://placementapp-1t8j.onrender.com/login" style="display:inline-block;padding:12px 24px;background:#16a34a;color:#ffffff;border-radius:8px;text-decoration:none;font-weight:600">🚀 Login to Placement App</a>
+                  <a href="https://placementapp-0htf.onrender.com/login" style="display:inline-block;padding:12px 24px;background:#16a34a;color:#ffffff;border-radius:8px;text-decoration:none;font-weight:600">🚀 Login to Placement App</a>
                 </div>
                 
                 <div style="background:#fef3c7;border:1px solid #f59e0b;border-radius:8px;padding:15px;margin:20px 0">
@@ -165,7 +165,7 @@ router.get('/approval', async (req, res) => {
             </div>
           </body>
           </html>`,
-          text: `Hi ${student.name}, your registration has been approved${approverInfo}. You can now login to your account at https://placementapp-1t8j.onrender.com/login`
+          text: `Hi ${student.name}, your registration has been approved${approverInfo}. You can now login to your account at https://placementapp-0htf.onrender.com/login`
         });
       } catch {}
       
