@@ -1,5 +1,5 @@
-import { Link } from 'react-router-dom'
-import Footer from '../components/Footer'
+import { Link } from "react-router-dom";
+import Footer from "../components/Footer";
 
 export default function FrontPage() {
   return (
@@ -24,13 +24,24 @@ export default function FrontPage() {
                     <div className="w-48 h-48 sm:w-52 sm:h-52 lg:w-56 lg:h-56 rounded-full bg-[#0d0f16] relative flex items-center justify-center overflow-hidden shadow-[0_25px_60px_rgba(0,0,0,0.5)]">
                       <div className="absolute inset-0 rounded-full bg-[conic-gradient(from_0deg,rgba(56,189,248,.20),rgba(217,70,239,.16),rgba(168,85,247,.16),rgba(56,189,248,.20))] opacity-15" />
                       <div className="absolute inset-[4px] sm:inset-[6px] lg:inset-[6px] rounded-full bg-gradient-to-br from-[#171a22] to-[#0f111a] border border-white/10 shadow-inner" />
-                      <img src="https://res.cloudinary.com/dj1shcirv/image/upload/v1757919594/images-removebg-preview_hw9ige.png" alt="College Logo" className="w-[92%] h-[92%] object-contain relative z-10" />
+                      <img
+                        src="https://res.cloudinary.com/dj1shcirv/image/upload/v1757919594/images-removebg-preview_hw9ige.png"
+                        alt="College Logo"
+                        className="w-[92%] h-[92%] object-contain relative z-10"
+                      />
                     </div>
 
-                    <h1 className="mt-5 text-lg sm:text-lg lg:text-2xl font-extrabold tracking-tight leading-tight bg-gradient-to-r from-sky-400 via-cyan-300 to-fuchsia-400 bg-clip-text text-transparent [text-shadow:0_0_10px_rgba(56,189,248,0.25),0_0_18px_rgba(217,70,239,0.18)] lg:text-center">
-                      <span className="block whitespace-nowrap lg:whitespace-nowrap">Anna University Regional Campus,</span>
+                    <p
+                      className="mt-5 text-sm sm:text-lg md:text-xl lg:text-2xl font-extrabold tracking-tight leading-snug
+             bg-gradient-to-r from-sky-400 via-cyan-300 to-fuchsia-400 bg-clip-text text-transparent
+             [text-shadow:0_0_10px_rgba(56,189,248,0.25),0_0_18px_rgba(217,70,239,0.18)]
+             text-center px-4">
+                      <span className="block whitespace-nowrap">
+                        Anna University Regional Campus,
+                      </span>
                       <span className="block">Coimbatore</span>
-                    </h1>
+                    </p>
+
                     <div className="mt-2 h-[2px] w-16 rounded-full bg-gradient-to-r from-sky-400 via-cyan-300 to-fuchsia-400 opacity-60" />
                   </div>
                 </div>
@@ -40,23 +51,33 @@ export default function FrontPage() {
 
           {/* Right: Title and actions */}
           <div className="order-2 lg:order-2 text-center lg:text-left lg:pl-2">
-            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black bg-gradient-to-r from-sky-400 via-cyan-300 to-fuchsia-400 bg-clip-text text-transparent mb-2 sm:mb-6 lg:mb-4 whitespace-nowrap">Placement App</h2>
+            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black bg-gradient-to-r from-sky-400 via-cyan-300 to-fuchsia-400 bg-clip-text text-transparent mb-2 sm:mb-6 lg:mb-4 whitespace-nowrap">
+              Placement App
+            </h2>
             <div className="block sm:hidden mx-auto w-full max-w-[22rem] px-2">
               {/* Mobile container with proper alignment */}
               <div className="text-slate-200 mb-12 pb-0 text-xs leading-5 text-center tracking-[0.01em] font-medium mobile-text-center px-0">
                 <div className="mobile-gloss-box mx-auto">
-                  <p className="mobile-justify">A dedicated placement portal for students and admins. Maintain verified profiles with downloadable resumes. Access everything on a mobile-responsive platform.</p>
+                  <p className="mobile-justify">
+                    A dedicated placement portal for students and admins.
+                    Maintain verified profiles with downloadable resumes. Access
+                    everything on a mobile-responsive platform.
+                  </p>
                 </div>
               </div>
               <div className="flex flex-col items-center gap-5 mt-8">
                 <Link to="/login" className="neon-btn">
                   <span className="neon-btn-outer neon-btn-outer--blue">
-                    <span className="neon-btn-inner btn-glass text-sm font-semibold text-white select-none hero-fill bulge-corners text-center">Student Login</span>
+                    <span className="neon-btn-inner btn-glass text-sm font-semibold text-white select-none hero-fill bulge-corners text-center">
+                      Student Login
+                    </span>
                   </span>
                 </Link>
                 <Link to="/admin/login" className="neon-btn">
                   <span className="neon-btn-outer neon-btn-outer--purple">
-                    <span className="neon-btn-inner btn-glass text-sm font-semibold text-white select-none hero-fill bulge-corners purple text-center">Admin Login</span>
+                    <span className="neon-btn-inner btn-glass text-sm font-semibold text-white select-none hero-fill bulge-corners purple text-center">
+                      Admin Login
+                    </span>
                   </span>
                 </Link>
               </div>
@@ -66,13 +87,17 @@ export default function FrontPage() {
               <div className="block lg:hidden text-center">
                 <p>A dedicated placement portal for students and admins.</p>
                 <p>Maintain verified profiles with downloadable resumes.</p>
-                <p>Track your progress and placement activities effortlessly.</p>
+                <p>
+                  Track your progress and placement activities effortlessly.
+                </p>
                 <p>Access everything on a mobile-responsive platform.</p>
               </div>
               <div className="hidden lg:block text-left">
                 <p>A dedicated placement portal for students and admins.</p>
                 <p>Maintain verified profiles with downloadable resumes.</p>
-                <p>Track your progress and placement activities effortlessly.</p>
+                <p>
+                  Track your progress and placement activities effortlessly.
+                </p>
                 <p>Access everything on a mobile-responsive platform.</p>
               </div>
             </div>
@@ -80,12 +105,16 @@ export default function FrontPage() {
               {/* Center buttons on tablet, left on desktop */}
               <Link to="/login" className="neon-btn sm:mx-auto lg:mx-0">
                 <span className="neon-btn-outer neon-btn-outer--blue">
-                  <span className="neon-btn-inner btn-glass text-base select-none hero-fill">Student Login</span>
+                  <span className="neon-btn-inner btn-glass text-base select-none hero-fill">
+                    Student Login
+                  </span>
                 </span>
               </Link>
               <Link to="/admin/login" className="neon-btn sm:mx-auto lg:mx-0">
                 <span className="neon-btn-outer neon-btn-outer--purple">
-                  <span className="neon-btn-inner btn-glass text-base select-none hero-fill purple">Admin Login</span>
+                  <span className="neon-btn-inner btn-glass text-base select-none hero-fill purple">
+                    Admin Login
+                  </span>
                 </span>
               </Link>
             </div>
@@ -93,7 +122,7 @@ export default function FrontPage() {
         </div>
       </div>
       <div className="relative z-10">
-      <Footer />
+        <Footer />
       </div>
 
       <style>{`@keyframes float {0%{transform:translateY(0)}50%{transform:translateY(-10px)}100%{transform:translateY(0)}}
@@ -341,7 +370,5 @@ export default function FrontPage() {
       
       `}</style>
     </div>
-  )
+  );
 }
-
-
