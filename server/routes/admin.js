@@ -29,11 +29,18 @@ router.post('/staff', auth('admin'), async (req, res) => {
 });
 
 // List staff admins (admin only)
-router.get('/staff', auth('admin'), async (_req, res) => {
+router.get('/staff', auth('admin'), async (req, res) => {
   try {
     const Admin = require('../models/Admin');
-    // Include department so the UI can show/filter by department
-    const list = await Admin.find({ role: 'staff' }).select('username name email role department createdAt').lean();
+    const { department } = req.query;
+    
+    // Build filter - if department is specified, filter by it
+    const filter = { role: 'staff' };
+    if (department) {
+      filter.department = department;
+    }
+    
+    const list = await Admin.find(filter).select('username name email role department createdAt').lean();
     res.json(list);
   } catch (e) {
     console.error('List staff error:', e);

@@ -1,6 +1,8 @@
 const bcrypt = require('bcryptjs');
 const Admin = require('../models/Admin');
 
+//  username: aurccadmin =||= password: placementaurcc
+
 async function ensureDefaultAdmin() {
   const username = process.env.ADMIN_USERNAME || 'aurccadmin';
   const password = process.env.ADMIN_PASSWORD || 'placementaurcc';

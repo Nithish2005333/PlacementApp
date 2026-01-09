@@ -26,6 +26,7 @@ const ForgotPassword: React.FC = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [showErrorPopup, setShowErrorPopup] = useState(false);
+  const [otpError, setOtpError] = useState(false);
   
   // Password validation function
   const validatePassword = (password: string): string | null => {
@@ -109,12 +110,14 @@ const ForgotPassword: React.FC = () => {
     e.preventDefault();
     if (!otp || otp.length !== 6) {
       setError('Please enter a valid 6-digit OTP');
+      setOtpError(true);
       setShowErrorPopup(true);
       return;
     }
 
     setOtpVerifying(true);
     setError('');
+    setOtpError(false);
     try {
       const response = await api.post('/auth/student/verify-forgot-otp', { 
         email,
@@ -127,6 +130,7 @@ const ForgotPassword: React.FC = () => {
       }
     } catch (err: any) {
       setError(err.response?.data?.error || 'Invalid OTP');
+      setOtpError(true);
       setShowErrorPopup(true);
     } finally {
       setOtpVerifying(false);
@@ -236,6 +240,8 @@ const ForgotPassword: React.FC = () => {
                     value={otp}
                     onChange={setOtp}
                     length={6}
+                    hasError={otpError}
+                    onError={setOtpError}
                     containerClassName="otp-fp-container"
                     cellClassName="otp-fp-cell"
                   />

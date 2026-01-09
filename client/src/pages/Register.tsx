@@ -39,37 +39,45 @@ export default function Register() {
   const [showEmailSpamPopup, setShowEmailSpamPopup] = useState(false)
   const [otpSending, setOtpSending] = useState(false)
   const [resendCooldown, setResendCooldown] = useState<number>(0)
+  const [otpError, setOtpError] = useState(false)
+  const [hasFormError, setHasFormError] = useState(false)
 
   async function submit(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
     setPasswordError(null)
     setShowErrorPopup(false)
+    setHasFormError(false)
     
     // Validate password
     const passwordValidationError = validatePassword(form.password)
     if (passwordValidationError) {
       setPasswordError(passwordValidationError)
+      setHasFormError(true)
       return
     }
     
     // Check if passwords match
     if (form.password !== form.confirmPassword) {
       setPasswordError('Passwords do not match')
+      setHasFormError(true)
       return
     }
     
     if (!otpSent || !form.otp) {
       setError('Please verify your email via OTP')
       setShowErrorPopup(true)
+      setHasFormError(true)
       return
     }
 
     // Verify OTP first (email)
     try {
       await api.post('/auth/otp/verify', { email: form.email, purpose: 'register', code: form.otp })
+      setOtpError(false) // Clear any previous OTP errors
     } catch (err:any) {
       setError(err?.response?.data?.error || 'OTP verification failed')
+      setOtpError(true)
       setShowErrorPopup(true)
       return
     }
@@ -269,7 +277,12 @@ export default function Register() {
           {otpSent && (
             <div className="form-group">
               <label>OTP:</label>
-              <OTPInput value={form.otp} onChange={(next)=> setForm({ ...form, otp: next.replace(/\s/g,'') })} />
+              <OTPInput 
+                value={form.otp} 
+                onChange={(next)=> setForm({ ...form, otp: next.replace(/\s/g,'') })} 
+                hasError={otpError}
+                onError={setOtpError}
+              />
             </div>
           )}
           <div className="form-group">
@@ -285,6 +298,9 @@ export default function Register() {
                 const validationError = validatePassword(password)
                 setPasswordError(validationError)
                 
+                // Clear form error when user starts typing
+                if (hasFormError) setHasFormError(false)
+                
                 // Real-time password matching validation
                 if (form.confirmPassword && password) {
                   setPasswordMatch(form.confirmPassword === password)
@@ -294,6 +310,7 @@ export default function Register() {
               }}
               required
               placeholder="Enter your password"
+              hasError={hasFormError && !!passwordError}
             />
             {passwordError && <div style={{ color: '#f66', fontSize: 12, marginTop: 4 }}>{passwordError}</div>}
           </div>
@@ -307,6 +324,7 @@ export default function Register() {
                 setForm({ ...form, confirmPassword })
                 // Clear password error when user starts typing
                 if (passwordError) setPasswordError(null)
+                if (hasFormError) setHasFormError(false)
                 
                 // Real-time password matching validation
                 if (confirmPassword && form.password) {
@@ -317,6 +335,7 @@ export default function Register() {
               }}
               required
               placeholder="Confirm your password"
+              hasError={hasFormError && passwordMatch === false}
             />
             {passwordError && <div style={{ color: '#f66', fontSize: 12, marginTop: 4 }}>{passwordError}</div>}
             {passwordMatch !== null && form.confirmPassword && (

@@ -20,7 +20,7 @@ export default function Footer({ fixed = false }: FooterProps) {
 	return (
 		<footer style={{ ...baseStyle, ...fixedStyle }}>
 			<span className="hidden sm:inline">Created by Nithishwaran • © {year} AURCC. All rights reserved.</span>
-			<span className="sm:hidden" style={{ fontSize: 11, lineHeight: 1.25 }}>Created by Nithishwaran • © {year} AURCC • All rights reserved</span>
+			<span className="sm:hidden" style={{ fontSize: 9, lineHeight: 1.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Created by Nithishwaran • © {year} AURCC • All rights reserved</span>
 		</footer>
 	)
 }

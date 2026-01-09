@@ -27,9 +27,9 @@ export default function FrontPage() {
                       <img src="https://res.cloudinary.com/dj1shcirv/image/upload/v1757919594/images-removebg-preview_hw9ige.png" alt="College Logo" className="w-[92%] h-[92%] object-contain relative z-10" />
                     </div>
 
-                    <h1 className="mt-5 text-lg sm:text-lg lg:text-2xl font-extrabold tracking-tight leading-tight bg-gradient-to-r from-sky-400 via-cyan-300 to-fuchsia-400 bg-clip-text text-transparent [text-shadow:0_0_10px_rgba(56,189,248,0.25),0_0_18px_rgba(217,70,239,0.18)] lg:text-center">
-                      <span className="block whitespace-nowrap lg:whitespace-nowrap">Anna University Regional Campus,</span>
-                      <span className="block">Coimbatore</span>
+                    <h1 className="mt-16 sm:mt-12 text-base sm:text-lg md:text-xl lg:text-2xl font-extrabold tracking-tight leading-snug text-center bg-gradient-to-r from-sky-400 via-cyan-300 to-fuchsia-400 bg-clip-text text-transparent [text-shadow:0_0_10px_rgba(56,189,248,0.25),0_0_18px_rgba(217,70,239,0.18)]">
+                      <span className="block whitespace-nowrap">Anna University Regional Campus,</span>
+                      <span className="block whitespace-nowrap">Coimbatore</span>
                     </h1>
                     <div className="mt-2 h-[2px] w-16 rounded-full bg-gradient-to-r from-sky-400 via-cyan-300 to-fuchsia-400 opacity-60" />
                   </div>
@@ -93,7 +93,7 @@ export default function FrontPage() {
         </div>
       </div>
       <div className="relative z-10">
-      <Footer />
+        <Footer />
       </div>
 
       <style>{`@keyframes float {0%{transform:translateY(0)}50%{transform:translateY(-10px)}100%{transform:translateY(0)}}

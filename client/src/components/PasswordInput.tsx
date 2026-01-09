@@ -10,6 +10,7 @@ interface PasswordInputProps {
   required?: boolean;
   className?: string;
   style?: React.CSSProperties;
+  hasError?: boolean;
 }
 
 const PasswordInput: React.FC<PasswordInputProps> = ({
@@ -21,7 +22,8 @@ const PasswordInput: React.FC<PasswordInputProps> = ({
   placeholder = "Enter your password",
   required = false,
   className = "",
-  style
+  style,
+  hasError = false
 }) => {
   const [showPassword, setShowPassword] = useState(false);
 
@@ -45,7 +47,7 @@ const PasswordInput: React.FC<PasswordInputProps> = ({
         }}
         placeholder={placeholder}
         required={required}
-        className={`pr-10 ${className}`}
+        className={`pr-10 ${hasError ? 'password-input-error' : ''} ${className}`}
         style={style}
       />
       <button
